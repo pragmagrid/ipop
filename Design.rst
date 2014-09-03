@@ -15,27 +15,27 @@ convenience scripts for setting up a new IPOP VPN.
 IPOP roll
 --------------------
 
-Installs software
- * ejabberd (frontend only)
- * ipop
+* Installs software 
 
-Includes ipv6 kernel modification
+  - ejabberd (frontend only)
+  - ipop
 
-Includes initd scripts
+* Includes ipv6 kernel modification
 
-Includes default IPOP configuration files
+* Includes initd scripts
 
-Include two convenience scripts for setting up a new IPOP VPN
- * create-ipop-vpn <password> (to be run on frontend of virtual cluster) 
+* Includes default IPOP configuration files
 
-  - will create a new VPN network (use IP space based on existing private network IP)
-  - set the password
-  - return an authentication token
-  - provide a simple service to authenticate token from clients and provide
-    them with password and unique IP address (maybe as a PHP script?)
+* Include two convenience scripts for setting up a new IPOP VPN
+  - create-ipop-vpn <password> (to be run on frontend of virtual cluster) 
 
- * join-ipop-vpn <public ip of virtual cluster frontend> <token> (to be run on each virtual cluster compute)
+    + will create a new VPN network (use IP space based on existing private network IP)
+    + set the password
+    + return an authentication token
+    + provide a simple service to authenticate token from clients and provide them with password and unique IP address (maybe as a PHP script?)
 
-  - contact frontend and get an assigned IP address
-  - write json file and startup IPOP daemons
+  - join-ipop-vpn <public ip of virtual cluster frontend> <token> (to be run on each virtual cluster compute)
+
+    + contact frontend and get an assigned IP address
+    + write json file and startup IPOP daemons
 
