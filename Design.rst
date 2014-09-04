@@ -1,24 +1,28 @@
 .. highlight:: rest
 
-IPOP Roll Design
+IPOP Roll 
 ================
 .. contents::  
 
 Introduction
 ----------------
 
-This roll will install IPOP (IP-over-P2P), an open-source software allowing
-end users to define 
-and create their own virtual private networks (VPNs) and provides some 
-convenience scripts for setting up a new IPOP VPN.
+This roll provides 
 
-IPOP roll
---------------------
+* Erland XMPP server 
 
-* Installs software 
+* IPOP (IP-over-P2P), an open-source software allowing
+  end users to define 
+  and create their own virtual private networks (VPNs) and provides some 
+  convenience scripts for setting up a new IPOP VPN.
 
-  - ejabberd (frontend only)
-  - ipop
+
+Installed components
+---------------------
+
+* ejabberd (frontend only)
+  
+* ipop
 
 * Includes ipv6 kernel modification
 
@@ -26,16 +30,17 @@ IPOP roll
 
 * Includes default IPOP configuration files
 
-* Include two convenience scripts for setting up a new IPOP VPN
-  - create-ipop-vpn <password> (to be run on frontend of virtual cluster) 
+* Include two convenience scripts for setting up a new IPOP VPN   
 
-    + will create a new VPN network (use IP space based on existing private network IP)
-    + set the password
-    + return an authentication token
-    + provide a simple service to authenticate token from clients and provide them with password and unique IP address (maybe as a PHP script?)
+  #. create-ipop-vpn <password> (to be run on frontend of virtual cluster) 
 
-  - join-ipop-vpn <public ip of virtual cluster frontend> <token> (to be run on each virtual cluster compute)
+     + will create a new VPN network (use IP space based on existing private network IP)
+     + set the password
+     + return an authentication token
+     + provide a simple service to authenticate token from clients and provide them with password and unique IP address (maybe as a PHP script?)
 
-    + contact frontend and get an assigned IP address
-    + write json file and startup IPOP daemons
+  #. join-ipop-vpn <public ip of virtual cluster frontend> <token> (to be run on each virtual cluster compute)
+
+     + contact frontend and get an assigned IP address
+     + write json file and startup IPOP daemons
 
