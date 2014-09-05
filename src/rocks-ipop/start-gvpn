@@ -1,0 +1,15 @@
+#!/bin/bash
+
+DIR="."
+OUT=$DIR/ipop-tincan.out
+ERR=$DIR/ipop-tincan.err
+LOG=$DIR/ipop-gvpn.log
+
+CONF=config-stun.json
+
+# start tincan daemon
+/opt/ipop/ipop-tincan > $OUT 2> $ERR &
+
+# start controller
+/opt/ipop/gvpn_controller.py -c $CONF &>  $LOG &
+
