@@ -94,8 +94,6 @@ install::
 	$(INSTALL) -m755 $(LONGNAME)/*.py  $(ROOT)/$(PKGROOT)/
 	mkdir -p $(ROOT)/$(PKGROOT)/etc
 	$(INSTALL) -m644 config.json.template  $(ROOT)/$(PKGROOT)/etc
-	mkdir -p $(ROOT)/$(PKGROOT)/bin
-	$(INSTALL) -m 755 updateConfJson $(ROOT)/$(PKGROOT)/bin
 
 clean::
 	rm -rf $(LONGNAME)
