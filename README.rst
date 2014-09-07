@@ -10,6 +10,8 @@ Introduction
 This roll installs IPOP (IP-over-P2P), an open-source software allowing end users to define 
 and create their own virtual private networks (VPNs).
 
+See IPOP project `home page  <http://ipop-project.org>`_  and 
+`github <https://github.com/ipop-project>`_ for more info
 
 Download ipop src 
 --------------------
