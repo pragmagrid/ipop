@@ -16,6 +16,7 @@
 	</changelog>
 
 	<package>ipop</package>
+	<package>rocks-ipop</package>
 
 <post>
 

@@ -15,9 +15,17 @@
 	<changelog>
 	</changelog>
 
+	<edge from="server" to="ipop-server"/>
+	<edge from="server" to="ipop-common"/>
+	<edge from="client" to="ipop-common"/>
+
+	<order head="ipop-common">
+		<tail>ipop-server</tail>
+	</order>
+
 	<!-- put ipop last-->
 	<order head="TAIL">
-		<tail>ipop</tail>
+		<tail>ipop-common</tail>
 	</order>
 
 </graph>
