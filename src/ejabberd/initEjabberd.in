@@ -1,0 +1,182 @@
+#!/bin/bash
+
+# set installation variables 
+SetDefaults() {
+    # export rocks commands
+    export PATH=$PATH:/opt/rocks/bin    # include rocks commands
+
+    INSTDIR=@PKGROOT@                   # install dir
+    CMD=$INSTDIR/sbin/ejabberdctl       # ejabberd command
+    EJUSER=@EJUSER@                     # user to run daemons
+    ETCDIR=$INSTDIR/etc                 # directory for config and auth files
+
+    LOGDIR=@LOGDIR@                     # log directory
+    LOCKDIR=@LOCKDIR@                   # lock directory
+    SPOOLDIR=@SPOOLDIR@                 # spool directory
+
+    PEMFILE=$ETCDIR/ejabberd.pem        # pem file
+
+    IPOPUSER=ipopuser                   # ipop user
+    IPOPHOST=ejabberd                   # ipop host
+    IPOPPASS=pragma                     # ipop user pass
+
+    DATE=$(/bin/date +%Y%m%d-%H%M)      # timestamp when scirpt is run
+
+    # get server hostname and ip address
+    FindServerInfo                 
+}
+
+# add ipopuser
+AddDefault_user () {
+    # create a efault user
+    $CMD register $IPOPUSER $IPOPHOST $IPOPPASS
+}
+
+# create a directory and set its ownershp and permisisons
+CreateDir () {
+    mkdir -p $1
+    /bin/chown -R $EJUSER:$EJUSER $1
+    /bin/chmod -R 750 $1
+}
+
+# create log, lock and sppol directories
+SetVarDirs () {
+    CreateDir $LOGDIR   # create @LOGDIR@ 
+    CreateDir $LOCKDIR  # create @LOCKDIR@
+    CreateDir $SPOOLDIR # create @SPOOLDIR@ 
+}
+
+# set cookie file permissions
+SetCookieFile () {
+    COOKIEFILE=$SPOOLDIR/.erlang.cookie # erlang cookie file
+    [ ! -f $(COOKIEFILE) ] || { /bin/chown $EJUSER:$EJUSER $COOKIEFILE ; /bin/chmod 400 $COOKIEFILE ; }
+
+    # FIXME  - more likely don't need this. See if works without
+    # fix cookie path (since ver. 2.1.0 cookie stored in /var/lib/ejabberd/spool, not in /var/lib/ejabberd
+    #if [ -f $(COOKIEFILE) ]; then
+    #    cp -pu $SPOOLDIR/{,spool/}.erlang.cookie
+    #    echo
+    #    echo The ejabberd cookie file was moved.
+    #    echo Please delete old $COOKIEFILE
+    #    echo
+    #fi
+}
+
+FindServerInfo () {
+    # find host FQDN and ip.
+    hostFQDN=`rocks list host attr localhost | /bin/grep Kickstart_PublicHostname | awk '{print $3}'` # FQDN
+    hostIP=`rocks list host attr localhost | /bin/grep Kickstart_PublicAddress | awk '{print $3}'`    # IP
+}
+
+# append to ejabberd config file
+CreateCtlConfig () {
+    hostIPerl=`echo  ${hostIP//\./\,}` # IP in erlang notation (commas in place of dots)
+    CTLCFG=$ETCDIR/ejabberdctl.cfg     # ejabberd config file
+
+    # save previous config 
+    if [ -f $CTLCFG ] ; then
+	/bin/mv $CTLCFG $CTLCFG.$DATE
+        echo "INFO: Saved previous $CTLCFG as $CTLCFG.$DATE"
+    fi
+
+    # create new config 
+    if [ -f $CTLCFG.template ] ; then
+	/bin/cat $CTLCFG.template > $CTLCF
+        echo  >> $CTLCFG
+    else
+        /bin/touch $CTLCFG
+        echo "WARNING: File $CTLCFG.template does not exist."
+    fi
+
+    echo ERLANG_NODE=$EJUSER@$hostFQDN >> $CTLCFG
+    echo INET_DIST_INTERFACE={$hostIPerl} >> $CTLCFG
+    echo ERL_EPMD_ADDRESS=$hostIP >> $CTLCFG
+    echo ERL_INETRC=$hostFQDN >> $CTLCFG
+    echo  >> $CTLCFG
+
+    /bin/chown $EJUSER:$EJUSER $CTLCFG
+    /bin/chmod 640 $CTLCFG
+}
+
+# create $ETCDIR/ejabberd.yml config file
+CreateYmlConfig () {
+    YMLCFG=$ETCDIR/ejabberd.yml
+
+    # save previous config 
+    if [ -f $YMLCFG ] ; then
+	/bin/mv $YMLCFG $YMLCFG.$DATE
+        echo "INFO: Saved previous $YMLCFG as $YMLCFG.$DATE"
+    fi
+
+    # create new config 
+    if [ -f $YMLCFG.template ] ; then
+	/bin/sed -e 's%@hostFQDN@%$(hostFQDN)%g' $YMLCFG.template > $CTLCF
+    else
+        echo "ERROR: File $YMLCFG.template does not exist."
+    fi
+}
+
+CreateSSLCert () {
+    # Create SSL certificate with default values if it doesn't exist
+    if [ ! -f $PEMFILE ] ; then
+        echo "Generating SSL certificate $PEMFILE ..."
+        HOSTNAME=$(hostname -s 2>/dev/null || echo "localhost")
+        DOMAINNAME=$(hostname -d 2>/dev/null || echo "localdomain")
+        openssl req -new -x509 -days 365 -nodes -out $PEMFILE \
+                -keyout $PEMFILE > /dev/null 2>&1 << EOF
+.
+.
+.
+$DOMAINNAME
+$HOSTNAME
+ejabberd
+root@$HOSTNAME.$DOMAINNAME
+EOF
+
+    /bin/chown $EJUSER:$EJUSER $PEMFILE
+    /bin/chmod 600 $PEMFILE
+    fi
+}
+
+UpdatePermissions () {
+    # for @ETCDIR@
+    /bin/chown -R $EJUSER:$EJUSER $ETCDIR
+    /bin/chmod  750 $ETCDIR
+
+    # for ejabberdctl command
+    /bin/chown $EJUSER:$EJUSER $CMD
+
+    # for @INSTDIR@/lib/ejabberd/priv/bin/
+    CAPTCHA=@INSTDIR@/lib/ejabberd/priv/bin/captcha.sh
+    /bin/chown $EJUSER:$EJUSER $CAPTCHA
+
+    EPAM=@INSTDIR@/lib/ejabberd/priv/bin/epam
+    [ ! -f $EPAM ] || { /bin/chown $EJUSER:$EJUSER $EPAM ; /bin/chmod 750 $EPAM ; }
+}
+
+# runs scripts for files/dirs in /var 
+RunVar () {
+    SetVarDirs
+    SetCookieFile
+}
+
+# runs scripts for files/dirs in @ETCDIR@
+RunEtc () {
+    CreateCtlConfig
+    CreateYmlConfig
+    CreateSSLCert
+}
+
+# ru ejabberd ocnfiguration
+RunConfig () {
+    if  $CMD status > /dev/null; then
+        AddDefault_user 
+    fi
+}
+
+#### Main ####
+SetDefaults
+UpdatePermissions
+RunVar
+RunEtc
+RunConfig

@@ -19,13 +19,13 @@
 
 . /etc/rc.d/init.d/functions
 
-EDIR=/opt/ejabberd
-CONFIG_FILE=$EDIR/etc/ejabberd.yml
-CTL_CONFIG_FILE=$EDIR/etc/ejabberdctl.cfg
+INSTDIR=@PKGROOT@
+CONFIG_FILE=$INSTDIR/etc/ejabberd.yml
+CTL_CONFIG_FILE=$INSTDIR/etc/ejabberdctl.cfg
 ULIMIT_MAX_FILES=1024
 
 # we're using symlinked consolehelper to check user's rights
-progctl=$EDIR/sbin/ejabberdctl
+progctl=$INSTDIR/sbin/ejabberdctl
 
 start() {
         echo -n $"Starting ejabberd: "

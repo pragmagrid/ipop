@@ -59,16 +59,37 @@ REDHAT.ROOT = $(CURDIR)/../../
 -include $(ROCKSROOT)/etc/Rules.mk
 include Rules.mk
 
+SEDSPEC += \
+        -e 's%@PKGROOT@%$(PKGROOT)%g' \
+        -e 's%@EJUSER@%$(EJUSER)%g' \
+        -e 's%@LOGDIR@%$(LOGDIR)%g' \
+        -e 's%@LOCKDIR@%$(LOCKDIR)%g' \
+        -e 's%@SPOOLDIR@%$(SPOOLDIR)%g' \
+        -e 's%@VERSION@%$(VERSION)%g'
 
-build:
+SCRIPTS = \
+	initEjabberd \
+	ejabberd \
+	ejabberd.yml.template
+
+initEjabberd: initEjabberd.in
+	$(SED) $(SEDSPEC) $^ > $@
+
+ejabberd: ejabberd.in
+	$(SED) $(SEDSPEC) $^ > $@
+
+ejabberd.yml.template: ejabberd.yml.in
+	$(SED) $(SEDSPEC) $^ > $@
+
+build: $(SCRIPTS)
 	$(TAR) -xzvf $(ARCHIVENAME)-$(VERSION).$(TARBALL_POSTFIX) 
 	cd patch-files && find . -type f | grep -v CVS | cpio -pduv ..
+	cp ejabberd.yml.template $(ARCHIVENAME)-$(VERSION)
 	(\
 		cd $(ARCHIVENAME)-$(VERSION);	\
-		 ./configure --with-erlang=$(ERLDIR) --prefix=$(PKGROOT) --localstatedir=/var --enable-user=$(JUSER); \
+		 ./configure --with-erlang=$(ERLDIR) --prefix=$(PKGROOT) --localstatedir=/var --enable-user=$(EJUSER); \
 		$(MAKE);    \
 	)
-
 
 install::
 	mkdir -p $(ROOT)/$(PKGROOT)
@@ -76,12 +97,13 @@ install::
 		cd $(ARCHIVENAME)-$(VERSION);     \
 		$(MAKE) DESTDIR=$(ROOT)/$(PKGROOT) install; \
 	)
-	mkdir -p $(ROOT)/var/lib/ejabberd
-	chown ejabberd:ejabberd $(ROOT)/var/lib/ejabberd
-	mkdir -p $(ROOT)/var/lock/ejabberdctl
-	chown ejabberd:ejabberd $(ROOT)/var/lock/ejabberdctl
-	mkdir -p $(ROOT)/var/log/ejabberd
-	chown ejabberd:ejabberd $(ROOT)/var/log/ejabberd
+
+	mkdir -p $(ROOT)/etc/init.d
+	install -m 755 ejabberd $(ROOT)/etc/init.d
+
+	mkdir -p $(ROOT)/$(PKGROOT)/bin
+	install -m 755 initEjabberd $(ROOT)/$(PKGROOT)/bin
 
 clean::
 	rm -rf $(ARCHIVENAME)-$(VERSION)
+	rm -rf $(SCRIPTS)
