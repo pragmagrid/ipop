@@ -15,42 +15,19 @@
 	<changelog>
 	</changelog>
 
-	<!-- put all ejabberd and erlang here -->
-	<package>zlib</package>
-	<package>zlib-devel</package>
-	<package>libntlm</package>
-	<package>libgsasl</package>
+	<!-- ejabberd prerequisites -->
+	<package>readline</package>
+	<package>readline-devel</package>
+	<package>libyml</package>
+	<package>libyml-devel</package>
+	<package>ipop-erlang</package>
 
-	<package>erlang-crypto</package>
-	<package>erlang-kernel</package>
-	<package>erlang-hipe</package>
-	<package>erlang-syntax_tools</package>
-	<package>erlang-erts</package>
-	<package>erlang-stdlib</package>
-	<package>erlang-compiler</package>
-	<package>erlang-esasl</package>
-
-	<package>wxBase</package>
-	<package>wxGTK</package>
-	<package>wxGTK-gl</package>
-
-	<package>erlang-runtime_tools</package>
-	<package>erlang-gs</package>
-	<package>erlang-wx</package>
-	<package>erlang-et</package>
-	<package>erlang-public_key</package>
-	<package>erlang-ssl</package>
-	<package>erlang-mnesia</package>
-	<package>erlang-inets</package>
-	<package>erlang-webtool</package>
-	<package>erlang-observer</package>
-	<package>erlang-tools</package>
-	<package>erlang-sasl</package>
-	
 	<package>ejabberd</package>
 
 <post>
 
+/usr/sbin/useradd -s /sbin/nologin -d /var/lib/ejabberd -M -c "Ejabberd XMPP user" ejabberd 
+/sbin/chkconfig --add ejabberd
 
 </post>
 

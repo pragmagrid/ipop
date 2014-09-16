@@ -1,9 +1,13 @@
 #!/bin/bash
 
-yumdownloader --enablerepo=epel --resolve ejabberd
-yumdownloader --enablerepo=epel --resolve libgsasl
-yumdownloader --enablerepo=base --resolve libntlm
-yumdownloader --enablerepo=base --resolve zlib
-yumdownloader --enablerepo=base --resolve zlib-devel
-yumdownloader --enablerepo=epel --resolve erlang-sasl
+. /opt/rocks/share/devel/src/roll/etc/bootstrap-functions.sh
 
+# get libyaml and libyml-devel
+(cd src/RPMS;
+yumdownloader --enablerepo=epel --resolve libyaml.x86_64; \
+)
+yum --enablerepo=epel install libyaml.x86_64
+
+# install erlang 
+compile erlang
+install ipop-erlang
