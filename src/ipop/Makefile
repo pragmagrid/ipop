@@ -92,8 +92,6 @@ install::
 	mkdir -p $(ROOT)/$(PKGROOT)/
 	$(INSTALL) -m755 $(LONGNAME)/ipop-tincan  $(ROOT)/$(PKGROOT)/
 	$(INSTALL) -m755 $(LONGNAME)/*.py  $(ROOT)/$(PKGROOT)/
-	mkdir -p $(ROOT)/$(PKGROOT)/etc
-	$(INSTALL) -m644 config.json.template  $(ROOT)/$(PKGROOT)/etc
 
 clean::
 	rm -rf $(LONGNAME)
