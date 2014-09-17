@@ -18,8 +18,8 @@
 	<!-- ejabberd prerequisites -->
 	<package>readline</package>
 	<package>readline-devel</package>
-	<package>libyml</package>
-	<package>libyml-devel</package>
+	<package>libyaml</package>
+	<package>libyaml-devel</package>
 	<package>ipop-erlang</package>
 
 	<package>ejabberd</package>
