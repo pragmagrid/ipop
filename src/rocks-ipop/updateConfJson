@@ -1,9 +1,11 @@
 #!/bin/bash
 
+# updates server fqdn and network CIDR in config.json.template 
+
 ROCKS=/opt/rocks/bin/rocks
 TEMPL=/opt/ipop/etc/config.json.template
 
 IP=`$ROCKS list host attr localhost | grep Kickstart_PublicAddress | awk '{print $3}'`
 CIDR=`$ROCKS list host attr localhost | grep Kickstart_PublicNetmaskCIDR | awk '{print $3}'`
 
-/bin/sed -i -e "s%IP%$IP%" -e "s%CIDR%$CIDR%" $TEMPL
+/bin/sed -i -e "s%@IP@%$IP%" -e "s%@CIDR@%$CIDR%" $TEMPL

@@ -69,5 +69,7 @@ build::
 install::
 	mkdir -p $(ROOT)/$(PKGROOT)/bin
 	$(INSTALL) -m 755 $(SCRIPTS) $(ROOT)/$(PKGROOT)/bin
+	mkdir -p $(ROOT)/$(PKGROOT)/etc
+	$(INSTALL) -m644 config.json.template  $(ROOT)/$(PKGROOT)/etc
 
 clean::
