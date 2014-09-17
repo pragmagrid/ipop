@@ -68,6 +68,9 @@ else
   INIT_USER=$(INSTALLUSER)
 endif
 
+# disregard user
+O_USER = 
+
 all: deps src
 
 deps: deps/.got
