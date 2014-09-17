@@ -3,23 +3,23 @@
 # Shut down ipop  processes
 
 kill_ipop_tincan () {
-daemon="ipop-tincan"
-PID=`ps -ef | grep $daemon | grep -v grep | awk '{print $2}'`
-if [ "$PID" = "" ]; then
+    daemon="ipop-tincan"
+    PID=`ps -ef | grep $daemon | grep -v grep | awk '{print $2}'`
+    if [ "$PID" = "" ]; then
 	echo "Process $daemon is not running"
-else
+    else
 	pkill $daemon
-fi
+    fi
 }
 
 kill_controller () {
-controller="gvpn_controller.py"
-PID=`ps -ef | grep $controller | grep -v grep | awk '{print $2}'`
-if [ "$PID" = "" ]; then
+    controller="gvpn_controller.py"
+    PID=`ps -ef | grep $controller | grep -v grep | awk '{print $2}'`
+    if [ "$PID" = "" ]; then
 	echo "Process $controller is not running"
-else
+    else
 	kill $PID
-fi
+    fi
 }
 
 kill_ipop_tincan

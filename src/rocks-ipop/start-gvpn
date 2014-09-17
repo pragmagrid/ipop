@@ -8,8 +8,14 @@ LOG=$DIR/ipop-gvpn.log
 CONF=config-stun.json
 
 # start tincan daemon
-/opt/ipop/ipop-tincan > $OUT 2> $ERR &
+startTincan () {
+    echo "Starting ipop-tincan ..."
+    /opt/ipop/ipop-tincan > $OUT 2> $ERR &
+}
 
 # start controller
-/opt/ipop/gvpn_controller.py -c $CONF &>  $LOG &
+startController () {
+    echo "Starting gvpn_controller ..."
+    /opt/ipop/gvpn_controller.py -c $CONF &> $LOG &
+}
 
