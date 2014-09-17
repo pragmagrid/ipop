@@ -23,11 +23,11 @@ SetDefaults() {
     DATE=$(/bin/date +%Y%m%d-%H%M)      # timestamp when scirpt is run
 
     # get server hostname and ip address
-    FindServerInfo                 
+    ServerInfo                 
 }
 
-# add ipopuser
-AddDefault_user () {
+# add default ipopuser
+DefaultUser () {
     # create a efault user
     $CMD register $IPOPUSER $IPOPHOST $IPOPPASS
 }
@@ -49,7 +49,7 @@ SetVarDirs () {
 # set cookie file permissions
 SetCookieFile () {
     COOKIEFILE=$SPOOLDIR/.erlang.cookie # erlang cookie file
-    [ ! -f $(COOKIEFILE) ] || { /bin/chown $EJUSER:$EJUSER $COOKIEFILE ; /bin/chmod 400 $COOKIEFILE ; }
+    [ ! -f $COOKIEFILE ] || { /bin/chown $EJUSER:$EJUSER $COOKIEFILE ; /bin/chmod 400 $COOKIEFILE ; }
 
     # FIXME  - more likely don't need this. See if works without
     # fix cookie path (since ver. 2.1.0 cookie stored in /var/lib/ejabberd/spool, not in /var/lib/ejabberd
@@ -62,7 +62,7 @@ SetCookieFile () {
     #fi
 }
 
-FindServerInfo () {
+ServerInfo () {
     # find host FQDN and ip.
     hostFQDN=`rocks list host attr localhost | /bin/grep Kickstart_PublicHostname | awk '{print $3}'` # FQDN
     hostIP=`rocks list host attr localhost | /bin/grep Kickstart_PublicAddress | awk '{print $3}'`    # IP
@@ -81,7 +81,7 @@ CreateCtlConfig () {
 
     # create new config 
     if [ -f $CTLCFG.template ] ; then
-	/bin/cat $CTLCFG.template > $CTLCF
+	/bin/cat $CTLCFG.template > $CTLCFG
         echo  >> $CTLCFG
     else
         /bin/touch $CTLCFG
@@ -110,10 +110,13 @@ CreateYmlConfig () {
 
     # create new config 
     if [ -f $YMLCFG.template ] ; then
-	/bin/sed -e 's%@hostFQDN@%$(hostFQDN)%g' $YMLCFG.template > $CTLCF
+	/bin/sed -e "s%@hostFQDN@%$hostFQDN%g" $YMLCFG.template > $YMLCFG
     else
         echo "ERROR: File $YMLCFG.template does not exist."
     fi
+
+    /bin/chown $EJUSER:$EJUSER $YMLCFG
+    /bin/chmod 640 $YMLCFG
 }
 
 CreateSSLCert () {
@@ -146,11 +149,11 @@ UpdatePermissions () {
     # for ejabberdctl command
     /bin/chown $EJUSER:$EJUSER $CMD
 
-    # for @INSTDIR@/lib/ejabberd/priv/bin/
-    CAPTCHA=@INSTDIR@/lib/ejabberd/priv/bin/captcha.sh
+    # for @PKGROOT@/lib/ejabberd/priv/bin/
+    CAPTCHA=@PKGROOT@/lib/ejabberd/priv/bin/captcha.sh
     /bin/chown $EJUSER:$EJUSER $CAPTCHA
 
-    EPAM=@INSTDIR@/lib/ejabberd/priv/bin/epam
+    EPAM=@PKGROOT@/lib/ejabberd/priv/bin/epam
     [ ! -f $EPAM ] || { /bin/chown $EJUSER:$EJUSER $EPAM ; /bin/chmod 750 $EPAM ; }
 }
 
@@ -170,7 +173,7 @@ RunEtc () {
 # ru ejabberd ocnfiguration
 RunConfig () {
     if  $CMD status > /dev/null; then
-        AddDefault_user 
+        DefaultUser 
     fi
 }
 
