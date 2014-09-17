@@ -95,7 +95,7 @@ install::
 	mkdir -p $(ROOT)/$(PKGROOT)
 	(\
 		cd $(ARCHIVENAME)-$(VERSION);     \
-		$(MAKE) DESTDIR=$(ROOT)/$(PKGROOT) install; \
+		$(MAKE) DESTDIR=$(ROOT) install; \
 	)
 
 	mkdir -p $(ROOT)/etc/init.d
