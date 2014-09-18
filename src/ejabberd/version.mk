@@ -1,5 +1,6 @@
 PKGROOT		= /opt/ipop/ejabberd
 ERLDIR          = /opt/ipop/erlang
+IPOPDIR         = /opt/ipop
 NAME    	= ipop-ejabberd
 VERSION 	= 14.07
 ARCHIVENAME     = ejabberd
