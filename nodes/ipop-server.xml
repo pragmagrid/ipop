@@ -29,6 +29,8 @@
 /usr/sbin/useradd -s /sbin/nologin -d /var/lib/ejabberd -M -c "Ejabberd XMPP user" ejabberd 
 /sbin/chkconfig --add ejabberd
 
+/opt/ipop/ejabberd/bin/initEjabberd
+
 </post>
 
 </kickstart>
