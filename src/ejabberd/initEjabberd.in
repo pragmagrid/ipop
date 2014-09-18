@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# This scirpt is run by the roll install process.
+# The script:
+#      creates files and directories for ejabberd 
+#      starts ejabberd daemon 
+#      creates admin user and ipop user 
+#
+
+#=============================================================== 
+#    Define functions
+#=============================================================== 
+
 # set installation variables 
 SetDefaults() {
     # export rocks commands
@@ -22,8 +33,10 @@ SetDefaults() {
 
     DATE=$(/bin/date +%Y%m%d-%H%M)      # timestamp when scirpt is run
 
+    INFO=@IPOPDIR@/etc/ipopserver.info  # ipop server info file
+
     # get server hostname and ip address
-    ServerInfo                 
+    ServerPublicInfo
 }
 
 # create admin user password
@@ -37,9 +50,22 @@ CreateAdminPass () {
 }
 
 # add admin user
-AdminUser () {
+RegisterAdmin () {
     if  $CMD status > /dev/null; then
         $CMD register $IPOPUSER $IPOPHOST `/bin/cat $IPOPPASS`
+    fi
+}
+
+# add pragma user
+AddUser () {
+    if [ ! -f $INFO ] ; then
+        return
+    fi
+
+    . $INFO
+
+    if  $CMD status > /dev/null; then
+        $CMD register $user $IPOPHOST $pass
     fi
 }
 
@@ -73,7 +99,7 @@ SetCookieFile () {
     #fi
 }
 
-ServerInfo () {
+ServerPublicInfo () {
     # find host FQDN and ip.
     hostFQDN=`rocks list host attr localhost | /bin/grep Kickstart_PublicHostname | awk '{print $3}'` # FQDN
     hostIP=`rocks list host attr localhost | /bin/grep Kickstart_PublicAddress | awk '{print $3}'`    # IP
@@ -169,7 +195,7 @@ UpdatePermissions () {
 }
 
 # run ejabberd configuration
-RunConfig () {
+PreConfig () {
     SetDefaults
     UpdatePermissions
     SetVarDirs
@@ -180,7 +206,16 @@ RunConfig () {
     CreateAdminPass
 }
 
-#### Main ####
-RunConfig
+# post startup tasks
+PostConfig () {
+    RegisterAdmin
+    AddUser
+}
+
+#=============================================================== 
+#    Run script  
+#=============================================================== 
+
+PreConfig
 /sbin/service ejabberd restart
-AdminUser
+PostConfig
