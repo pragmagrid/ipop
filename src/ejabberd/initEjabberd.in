@@ -16,9 +16,9 @@ SetDefaults() {
 
     PEMFILE=$ETCDIR/ejabberd.pem        # pem file
 
-    IPOPUSER=ipopuser                   # ipop user
+    IPOPUSER=@ADMUSER@                  # ipop admin user
     IPOPHOST=ejabberd                   # ipop host
-    IPOPPASS=pragma                     # ipop user pass
+    IPOPPASS=$ETCDIR/.ejabberd.pass     # ipop admin user password
 
     DATE=$(/bin/date +%Y%m%d-%H%M)      # timestamp when scirpt is run
 
@@ -26,10 +26,21 @@ SetDefaults() {
     ServerInfo                 
 }
 
-# add default ipopuser
-DefaultUser () {
-    # create a efault user
-    $CMD register $IPOPUSER $IPOPHOST $IPOPPASS
+# create admin user password
+CreateAdminPass () {
+    if [ ! -f $PASSFILE ] ; then
+        word=`mkpasswd -l 8 -d 2 -C 3 -s 0`   # random password 
+        /bin/echo $word > $IPOPPASS
+        /bin/chown -R $EJUSER:$EJUSER $IPOPPASS
+        /bin/chmod -R 600 $IPOPPASS
+    fi
+}
+
+# add admin user
+AdminUser () {
+    if  $CMD status > /dev/null; then
+        $CMD register $IPOPUSER $IPOPHOST `/bin/cat $IPOPPASS`
+    fi
 }
 
 # create a directory and set its ownershp and permisisons
@@ -157,29 +168,19 @@ UpdatePermissions () {
     [ ! -f $EPAM ] || { /bin/chown $EJUSER:$EJUSER $EPAM ; /bin/chmod 750 $EPAM ; }
 }
 
-# runs scripts for files/dirs in /var 
-RunVar () {
+# run ejabberd configuration
+RunConfig () {
+    SetDefaults
+    UpdatePermissions
     SetVarDirs
     SetCookieFile
-}
-
-# runs scripts for files/dirs in @ETCDIR@
-RunEtc () {
     CreateCtlConfig
     CreateYmlConfig
     CreateSSLCert
-}
-
-# ru ejabberd ocnfiguration
-RunConfig () {
-    if  $CMD status > /dev/null; then
-        DefaultUser 
-    fi
+    CreateAdminPass
 }
 
 #### Main ####
-SetDefaults
-UpdatePermissions
-RunVar
-RunEtc
 RunConfig
+/sbin/service ejabberd restart
+AdminUser

@@ -62,6 +62,7 @@ include Rules.mk
 SEDSPEC += \
         -e 's%@PKGROOT@%$(PKGROOT)%g' \
         -e 's%@EJUSER@%$(EJUSER)%g' \
+        -e 's%@ADMUSER@%$(ADMUSER)%g' \
         -e 's%@LOGDIR@%$(LOGDIR)%g' \
         -e 's%@LOCKDIR@%$(LOCKDIR)%g' \
         -e 's%@SPOOLDIR@%$(SPOOLDIR)%g' \

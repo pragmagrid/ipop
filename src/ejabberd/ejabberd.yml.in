@@ -393,8 +393,9 @@ acl:
   ##     - "ermine": "example.org"
   admin:
     user:
-      - "ipopuser": "@EJUSER@"
-      - "ipopuser": "@hostFQDN@"
+      - "@ADMUSER@": "localhost"
+      - "@ADMUSER@": "@EJUSER@"
+      - "@ADMUSER@": "@hostFQDN@"
   ##
   ## Blocked users
   ##

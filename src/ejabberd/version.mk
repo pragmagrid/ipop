@@ -5,6 +5,7 @@ VERSION 	= 14.07
 ARCHIVENAME     = ejabberd
 
 EJUSER          = ejabberd
+ADMUSER         = ipopadmin
 LOGDIR          = /var/log/ejabberd
 LOCKDIR         = /var/lock/ejabberdctl
 SPOOLDIR        = /var/lib/ejabberd
