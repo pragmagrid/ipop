@@ -7,6 +7,7 @@
 yumdownloader --enablerepo=epel --resolve libyaml.x86_64; \
 )
 yum --enablerepo=epel install libyaml.x86_64
+yum --enablerepo=epel install libyaml-devel.x86_64
 
 # install erlang 
 compile erlang
