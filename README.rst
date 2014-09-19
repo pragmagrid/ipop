@@ -66,7 +66,7 @@ The roll (ISO file) can be added (1) during the initial installation of the clus
 or (2) to the existing frontend.
 
 
-1 Adding a roll to a new server
+Adding a roll to a new server
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #. Add roll ISO to your existing frontend that is configured to be 
@@ -77,7 +77,7 @@ or (2) to the existing frontend.
    when you see ``Select Your Rolls`` screen. 
 
 
-2 Adding a roll to a live frontend
+Adding a roll to a live frontend
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A roll can be added to the existing frontend. 
