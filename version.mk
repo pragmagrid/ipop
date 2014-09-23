@@ -1,5 +1,4 @@
 ROLLNAME	= ipop
-VERSION		= 1.0
 RELEASE		= 0
 COLOR		= saddlebrown
 
