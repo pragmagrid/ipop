@@ -100,8 +100,8 @@ install::
 		$(MAKE) DESTDIR=$(ROOT) install; \
 	)
 
-	mkdir -p $(ROOT)/etc/init.d
-	install -m 755 ejabberd $(ROOT)/etc/init.d
+	mkdir -p $(ROOT)/etc/rc.d/init.d
+	install -m 755 ejabberd $(ROOT)/etc/rc.d/init.d
 
 	mkdir -p $(ROOT)/$(PKGROOT)/bin
 	install -m 755 initEjabberd $(ROOT)/$(PKGROOT)/bin
