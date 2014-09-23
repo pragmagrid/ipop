@@ -41,7 +41,7 @@ SetDefaults() {
 
 # create admin user password
 CreateAdminPass () {
-    if [ ! -f $PASSFILE ] ; then
+    if [ ! -f $IPOPPASS ] ; then
         word=`mkpasswd -l 8 -d 2 -C 3 -s 0`   # random password 
         /bin/echo $word > $IPOPPASS
         /bin/chown -R $EJUSER:$EJUSER $IPOPPASS
@@ -217,5 +217,5 @@ PostConfig () {
 #=============================================================== 
 
 PreConfig
-/sbin/service ejabberd restart
+/etc/init.d/ejabberd restart
 PostConfig
