@@ -22,7 +22,7 @@
 	<package>libyaml-devel</package>
 	<package>ipop-erlang</package>
 
-	<package>ejabberd</package>
+	<package>ipop-ejabberd</package>
 
 <post>
 
