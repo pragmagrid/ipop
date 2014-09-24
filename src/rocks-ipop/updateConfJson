@@ -5,7 +5,7 @@
 ROCKS=/opt/rocks/bin/rocks
 TEMPL=/opt/ipop/etc/config.json.template
 
-IP=`$ROCKS list host attr localhost | grep Kickstart_PublicAddress | awk '{print $3}'`
-CIDR=`$ROCKS list host attr localhost | grep Kickstart_PublicNetmaskCIDR | awk '{print $3}'`
+IP=`$ROCKS list host attr localhost | /bin/grep Kickstart_PublicAddress | /bin/awk '{print $3}'`
+CIDR=`$ROCKS list host attr localhost | /bin/grep Kickstart_PublicNetmaskCIDR | /bin/awk '{print $3}'`
 
 /bin/sed -i -e "s%@IP@%$IP%" -e "s%@CIDR@%$CIDR%" $TEMPL
