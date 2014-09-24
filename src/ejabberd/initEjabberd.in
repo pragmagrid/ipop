@@ -41,6 +41,7 @@ SetDefaults() {
 
 # create admin user password
 CreateAdminPass () {
+    echo "Creating admin user password file"
     if [ ! -f $IPOPPASS ] ; then
         word=`mkpasswd -l 8 -d 2 -C 3 -s 0`   # random password 
         /bin/echo $word > $IPOPPASS
@@ -51,6 +52,7 @@ CreateAdminPass () {
 
 # add admin user
 RegisterAdmin () {
+    echo "Creating admin user account"
     if  $CMD status > /dev/null; then
         $CMD register $IPOPUSER $IPOPHOST `/bin/cat $IPOPPASS`
     fi
@@ -61,6 +63,7 @@ AddUser () {
     if [ ! -f $INFO ] ; then
         return
     fi
+    echo "Creating user account"
 
     . $INFO
 
@@ -71,6 +74,7 @@ AddUser () {
 
 # create a directory and set its ownershp and permisisons
 CreateDir () {
+    echo "Creating directory $1"
     mkdir -p $1
     /bin/chown -R $EJUSER:$EJUSER $1
     /bin/chmod -R 750 $1
@@ -85,6 +89,7 @@ SetVarDirs () {
 
 # set cookie file permissions
 SetCookieFile () {
+    echo "Setting $COOKIEFILE permissions"
     COOKIEFILE=$SPOOLDIR/.erlang.cookie # erlang cookie file
     [ ! -f $COOKIEFILE ] || { /bin/chown $EJUSER:$EJUSER $COOKIEFILE ; /bin/chmod 400 $COOKIEFILE ; }
 
@@ -108,7 +113,9 @@ ServerPublicInfo () {
 # append to ejabberd config file
 CreateCtlConfig () {
     hostIPerl=`echo  ${hostIP//\./\,}` # IP in erlang notation (commas in place of dots)
+
     CTLCFG=$ETCDIR/ejabberdctl.cfg     # ejabberd config file
+    echo "Creating $CTLCFG config file."
 
     # save previous config 
     if [ -f $CTLCFG ] ; then
@@ -138,6 +145,7 @@ CreateCtlConfig () {
 # create $ETCDIR/ejabberd.yml config file
 CreateYmlConfig () {
     YMLCFG=$ETCDIR/ejabberd.yml
+    echo "Creating $YMLCFG config file."
 
     # save previous config 
     if [ -f $YMLCFG ] ; then
@@ -179,6 +187,7 @@ EOF
 }
 
 UpdatePermissions () {
+    echo "Updating ejabberd files permissions"
     # for @ETCDIR@
     /bin/chown -R $EJUSER:$EJUSER $ETCDIR
     /bin/chmod  750 $ETCDIR
@@ -218,4 +227,5 @@ PostConfig () {
 
 PreConfig
 /etc/init.d/ejabberd restart
+sleep 10
 PostConfig
