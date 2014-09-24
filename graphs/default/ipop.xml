@@ -23,9 +23,4 @@
 		<tail>ipop-server</tail>
 	</order>
 
-	<!-- put ipop last-->
-	<order head="TAIL">
-		<tail>ipop-common</tail>
-	</order>
-
 </graph>
