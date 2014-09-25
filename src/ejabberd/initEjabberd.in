@@ -68,7 +68,7 @@ AddUser () {
     . $INFO
 
     if  $CMD status > /dev/null; then
-        $CMD register $user $IPOPHOST $pass
+        $CMD register $xmpp_username $IPOPHOST $xmpp_password
     fi
 }
 
