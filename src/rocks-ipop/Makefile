@@ -73,6 +73,7 @@ install::
 	mkdir -p $(ROOT)/$(PKGROOT)/etc
 	$(INSTALL) -m644 config.json.template  $(ROOT)/$(PKGROOT)/etc
 	mkdir -p $(HTML_DIR)/ipop
-	$(INSTALL) -m644 -o apache -g apache ip.php $(HTML_DIR)/ipop; \
+	chown apache.apache $(HTML_DIR)/ipop
+	$(INSTALL) -m644 ip.php $(HTML_DIR)/ipop
 	mkdir -p $(ROOT)/etc/rc.d/init.d
 	$(INSTALL) -m755 ipop $(ROOT)/etc/rc.d/init.d
