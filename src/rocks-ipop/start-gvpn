@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This scirpt starts processes: ipop-tincan and gvpn_controller
+# This script starts processes: ipop-tincan and gvpn_controller
 # A configuration file for controller is either :
 #    a default 
 #    file name is passed as a firts argumetn to the script 
@@ -11,19 +11,17 @@ set_defaults () {
     OUT=$LOGDIR/ipop-tincan.out              # ipop-tincan output 
     ERR=$LOGDIR/ipop-tincan.err              # ipop-tincan error 
     LOG=$LOGDIR/ipop-gvpn.log                # gvpn_controller log
-    DEFAUL_CONF=/opt/ipop/etc/config.json    # default controller config file
+    DEFAULT_CONF=/opt/ipop/etc/config.json   # default controller config file
 }
 
 # set config file
 set_config () {
     if [ "$1" = "" ] ; then
-        CONF=$DEFAUL_CONF # use default config file
+        CONF=$DEFAULT_CONF # use default config file
     else
         CONF=$1           # use config file passed as first argument
     fi
     [ -f $CONF ] || { echo "File $CONF does not exist" ;  exit ; }
-
-    echo "cant reach here"
 }
 
 # create logging directory
