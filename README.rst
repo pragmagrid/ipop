@@ -92,3 +92,10 @@ Execute all commands from top level ipop/ ::
    # yum clean all
    # rocks run roll ipop > add-roll.sh  
    # bash add-roll.sh  > add-roll.out 2>&1
+
+TODO
+---------
+
+#. deal with grub.conf and grub-orig.conf: when to automate and how
+
+#. making of iposerver.info file
