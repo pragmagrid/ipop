@@ -1,0 +1,74 @@
+<?php
+/**
+ * ip.php  
+ *
+ * Distributes IPOP IP addresses to clients. 
+ *
+ * PHP version 5
+ *
+ * @package    rocks-ipop
+ * @author     Shava Smallen <ssmallen@sdsc.edu>
+ */
+
+  $IPOP_CONFIG="/opt/ipop/etc/config.json";
+  $IPOP_IP_DB="db.json";
+
+  header('Content-Type: application/json');
+  date_default_timezone_set('UTC');
+
+  /* Check that apache perms are set correctly */
+  if ( ! is_writeable(dirname($IPOP_IP_DB)) ||  
+       (file_exists($IPOP_IP_DB) && ! is_writeable($IPOP_IP_DB)) ) {
+    die( "Error, unable to create/write db" );
+  }
+
+  /* Read local db or create if it doesn't exit */
+  $ipop_db = "";
+  if ( file_exists($IPOP_IP_DB) ) {
+    $fh = fopen($IPOP_IP_DB, 'r');
+    $ipop_db_txt = fread($fh, filesize($IPOP_IP_DB));
+    fclose($fh);
+    $ipop_db = json_decode($ipop_db_txt);
+  } else {
+    /* Read IPOP config file and do some error checking */
+    if ( ! file_exists($IPOP_CONFIG) ) {
+      die( "Error, no IPOP config file found" );
+    }
+    $fh = fopen($IPOP_CONFIG, 'r');
+    if ( filesize($IPOP_CONFIG) <= 0 ) {
+      die( "Error, no content found in IPOP config file" );
+    }
+    $ipop_config = fread($fh, filesize($IPOP_CONFIG));
+    fclose($fh);
+    $ipop_json = json_decode($ipop_config);
+    foreach ( array("ip4", "ip4_mask") as $attr )  {
+      if ( ! isset($ipop_json->{$attr}) ) {
+        die( "Error, missing " . $attr . " attribute in IPOP config file" );
+      }
+    }
+    /* create a fresh db */
+    $num_ips_left = pow(2, 32 - $ipop_json->{"ip4_mask"}) - 1;
+    $ipop_db = array( "last_ip" => $ipop_json->{"ip4"}, "num_ips_left" => $num_ips_left  );
+    $ipop_db = json_decode(json_encode($ipop_db));
+  }
+
+  /* allocate a new ip address and update db */
+  if ( $ipop_db->{"num_ips_left"} <= 0 ) {
+    die( "Error, no ips left" );
+  }
+  $ipop_db->{"num_ips_left"} =  $ipop_db->{"num_ips_left"} - 1;
+  $next_ip = long2ip(ip2long($ipop_db->{"last_ip"}) + 1);
+  $ipop_db->{"last_ip"} = $next_ip;
+  $ipop_db->{$next_ip} = array( 
+    "request_time" => date(DATE_RFC2822,$_SERVER["REQUEST_TIME"]), 
+    "remote_addr" => $_SERVER["REMOTE_ADDR"] 
+  );
+  $fh = fopen($IPOP_IP_DB, "w");
+  fwrite($fh, json_encode($ipop_db));
+  fclose($fh);
+  chmod($IPOP_IP_DB, 0600);
+
+  /* return ip address to client */
+  print $next_ip;
+?>
+
