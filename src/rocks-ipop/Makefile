@@ -57,7 +57,7 @@
 # $Log$
 
 REDHAT.ROOT = $(CURDIR)/../../
-HTML_DIR = /var/www/html
+HTML_DIR = $(ROOT)/var/www/html
 
 -include $(ROCKSROOT)/etc/Rules.mk
 include Rules.mk
@@ -77,4 +77,4 @@ install::
 	  chown apache.apache $(HTML_DIR)/ipop; \
 	  $(INSTALL) -m644 ip.php $(HTML_DIR)/ipop; \
 	fi
-
+	$(INSTALL) -m755 ipop $(ROOT)/etc/rc.d/init.d
