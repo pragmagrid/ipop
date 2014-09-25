@@ -3,9 +3,24 @@
 # updates server fqdn and network CIDR in config.json.template 
 
 ROCKS=/opt/rocks/bin/rocks
-TEMPL=/opt/ipop/etc/config.json.template
+IPOP_DIR=/opt/ipop
+TEMPL=$IPOP_DIR/etc/config.json.template
+CONFIG=$IPOP_DIR/etc/config.json
+INFO=$IPOP_DIR/etc/ipopserver.info
 
-IP=`$ROCKS list host attr localhost | /bin/grep Kickstart_PublicAddress | /bin/awk '{print $3}'`
-CIDR=`$ROCKS list host attr localhost | /bin/grep Kickstart_PublicNetmaskCIDR | /bin/awk '{print $3}'`
+if [ -f $INFO ]; then
+  echo "Updating with config file"
+  cp $TEMPL $CONFIG
+  while read line; do
+    varname=`echo $line | cut -f 1 -d=`
+    value=`echo $line | cut -f 2 -d=`
+    echo $varname
+    /bin/sed -i -e "s%\"${varname}\": *\"[^\"]*\"%\"${varname}\": \"${value}\"%"  $CONFIG
+  done < $INFO
+else
+  IP=`$ROCKS list host attr localhost | /bin/grep Kickstart_PublicAddress | /bin/awk '{print $3}'`
+  CIDR=`$ROCKS list host attr localhost | /bin/grep Kickstart_PublicNetmaskCIDR | /bin/awk '{print $3}'`
 
-/bin/sed -i -e "s%@IP@%$IP%" -e "s%@CIDR@%$CIDR%" $TEMPL
+  /bin/sed -i -e "s%@IP@%$IP%" -e "s%@CIDR@%$CIDR%" $TEMPL
+fi
+
