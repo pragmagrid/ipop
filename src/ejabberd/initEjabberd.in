@@ -85,6 +85,7 @@ SetVarDirs () {
     CreateDir $LOGDIR   # create @LOGDIR@ 
     CreateDir $LOCKDIR  # create @LOCKDIR@
     CreateDir $SPOOLDIR # create @SPOOLDIR@ 
+    rm -f $SPOOLDIR/*   # clear out existing db
 }
 
 # set cookie file permissions
