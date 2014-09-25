@@ -74,7 +74,7 @@ install::
 	$(INSTALL) -m644 config.json.template  $(ROOT)/$(PKGROOT)/etc
 	if [ -d $(HTML_DIR) ]; then \
 	  mkdir -p $(HTML_DIR)/ipop; \
-		chown apache.apache $(HTML_DIR)/ipop; \
-		$(INSTALL) -m644 ip.php $(HTML_DIR)/ipop; \
+	  chown apache.apache $(HTML_DIR)/ipop; \
+	  $(INSTALL) -m644 ip.php $(HTML_DIR)/ipop; \
 	fi
 
