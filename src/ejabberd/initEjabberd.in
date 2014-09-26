@@ -16,24 +16,25 @@ SetDefaults() {
     # export rocks commands
     export PATH=$PATH:/opt/rocks/bin    # include rocks commands
 
-    INSTDIR=@PKGROOT@                   # install dir
-    CMD=$INSTDIR/sbin/ejabberdctl       # ejabberd command
-    EJUSER=@EJUSER@                     # user to run daemons
-    ETCDIR=$INSTDIR/etc                 # directory for config and auth files
+    INSTDIR=@PKGROOT@		# install dir
+    CMD=$INSTDIR/sbin/ejabberdctl	# ejabberd command
+    EJUSER=@EJUSER@			# user to run daemons
+    ETCDIR=$INSTDIR/etc			# directory for config and auth files
 
-    LOGDIR=@LOGDIR@                     # log directory
-    LOCKDIR=@LOCKDIR@                   # lock directory
-    SPOOLDIR=@SPOOLDIR@                 # spool directory
+    LOGDIR=@LOGDIR@		# log directory
+    LOCKDIR=@LOCKDIR@	# lock directory
+    SPOOLDIR=@SPOOLDIR@		# spool directory
 
-    PEMFILE=$ETCDIR/ejabberd.pem        # pem file
+    PEMFILE=$ETCDIR/ejabberd.pem	# pem file
 
-    IPOPUSER=@ADMUSER@                  # ipop admin user
-    IPOPHOST=ejabberd                   # ipop host
-    IPOPPASS=$ETCDIR/.ejabberd.pass     # ipop admin user password
+    IPOPADMIN=@ADMUSER@			# ipop admin user
+    IPOPUSER=@IPOPUSER@			# ipop user
+    IPOPHOST=ejabberd			# ipop host
+    IPOPPASS=$ETCDIR/.ejabberd.pass	# ipop admin user password
 
-    DATE=$(/bin/date +%Y%m%d-%H%M)      # timestamp when scirpt is run
+    DATE=$(/bin/date +%Y%m%d-%H%M)	# timestamp when scirpt is run
 
-    INFO=@IPOPDIR@/etc/ipopserver.info  # ipop server info file
+    INFO=@IPOPDIR@/etc/ipopserver.info	# ipop server info file
 
     # get server hostname and ip address
     ServerPublicInfo
@@ -54,7 +55,7 @@ CreateAdminPass () {
 RegisterAdmin () {
     echo "Creating admin user account"
     if  $CMD status > /dev/null; then
-        $CMD register $IPOPUSER $IPOPHOST `/bin/cat $IPOPPASS`
+        $CMD register $IPOPADMIN $IPOPHOST `/bin/cat $IPOPPASS`
     fi
 }
 
@@ -69,6 +70,21 @@ AddUser () {
 
     if  $CMD status > /dev/null; then
         $CMD register $xmpp_username $IPOPHOST $xmpp_password
+    fi
+}
+
+CreateServerFile () {
+    if [ ! -f $INFO ] ; then
+        # use host IP for ipop IP: change first octet to 172, last octet to 1
+        ipopIP=`echo $hostIP | sed -e "s%^[0-9][0-9]*%172%" -e "s%[0-9][0-9]*$%1%"`
+
+        # ipop user password
+        xmpp_password=`mkpasswd -l 8 -d 2 -C 3 -s 0` 
+
+        echo "xmpp_username=$IPOPUSER@$IPOPHOST"  > $INFO
+        echo "xmpp_password=$xmpp_password" >> $INFO
+        echo "xmpp_host=$hostIP" >> $INFO
+        echo "ip4=$ipopIP" >> $INFO
     fi
 }
 
@@ -220,6 +236,7 @@ PreConfig () {
 PostConfig () {
     RegisterAdmin
     AddUser
+    CreateServerFile 
 }
 
 #=============================================================== 

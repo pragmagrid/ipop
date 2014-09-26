@@ -7,6 +7,7 @@ ARCHIVENAME     = ejabberd
 
 EJUSER          = ejabberd
 ADMUSER         = ipopadmin
+IPOPUSER        = ipopuser
 LOGDIR          = /var/log/ejabberd
 LOCKDIR         = /var/lock/ejabberdctl
 SPOOLDIR        = /var/lib/ejabberd
