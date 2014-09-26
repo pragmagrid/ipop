@@ -32,7 +32,6 @@
 /opt/ipop/ejabberd/bin/initEjabberd
 /opt/ipop/bin/updateConfJson
 
-/sbin/chkconfig --add ipop
 </post>
 
 </kickstart>
