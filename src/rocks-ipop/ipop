@@ -39,14 +39,11 @@ start() {
           . $INSTDIR/etc/ipopserver.info 
           this_host=`hostname`
           this_ip=`host $this_host | cut -f 4 -d' '`
-          if [ "$this_ip" != "$xmpp_host" ]; then
-            # if server, initialize ejabberd and then ipop
+          if [ "$this_ip" == "$xmpp_host" ]; then
+            # if server, correct info already exists
             echo "Configuring IPOP server"
-            $INSTDIR/ejabberd/bin/initEjabberd
-            ipop_ip=`echo $this_ip | sed -e "s%^[0-9][0-9]*%172%" -e "s%[0-9][0-9]*$%1%"`
-            echo "ip4=$ipop_ip" >> $INSTDIR/etc/ipopserver.info
           else 
-            # if compute, need to get ip and start ipop
+            # if client, need to get ipop ip 
             echo "Configuring IPOP client"
             ipop_ip=`wget -q -O - http://$xmpp_host/ipop/ip.php`
             echo "ip4=$ipop_ip" >> $INSTDIR/etc/ipopserver.info
