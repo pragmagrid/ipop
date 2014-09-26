@@ -126,4 +126,4 @@ TODO
 
 #. deal with grub.conf and grub-orig.conf: when to automate and how
 
-#. making of iposerver.info file
+#. deal with  making ipop interface and changing MAC 
