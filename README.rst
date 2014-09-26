@@ -93,6 +93,34 @@ Execute all commands from top level ipop/ ::
    # rocks run roll ipop > add-roll.sh  
    # bash add-roll.sh  > add-roll.out 2>&1
 
+Where installed roll components are
+------------------------------------
+
+#. **/opt/ipop**  - ipop  distribution
+
+   * **/opt/ipop/bin/**  
+
+     + start-gvpn  -  ipop start up script 
+     + stop-gvpn   - ipop shutdown script 
+     + updateConfJson - script to create config json file
+
+   * **/opt/ipop/etc/**
+
+     + config.json.template - template for json file
+     + ipopserver.info - ipop info, used for creating json config file
+
+   * **/etc/rc.d/init.d/ipop/** - init script  to start ipop
+
+#. **/opt/ipop/erlang/** - prerequisite fro xmpp ejabberd server
+
+#. XMPP Ejabberd server
+
+   + Created user ``ejabberd``
+   + **/opt/ipop/ejabberd/** - xmpp ejabberd server
+   + **/var/lib/ejabberd/** - database 
+   + **/var/log/ejabberd/** - log files
+   + **/etc/rc.d/init.d/ejabberd/** - init script to start XMPP server
+
 TODO
 ---------
 
