@@ -36,6 +36,9 @@ SetDefaults() {
 
     INFO=@IPOPDIR@/etc/ipopserver.info	# ipop server info file
 
+    HTTPD_USER=apache
+    IPOP_PHP_DIR=/var/www/html/ipop
+
     # get server hostname and ip address
     ServerPublicInfo
 }
@@ -86,6 +89,14 @@ CreateServerFile () {
         echo "xmpp_host=$hostIP" >> $INFO
         echo "ip4=$ipopIP" >> $INFO
     fi
+}
+
+# create a html directory for ipop
+CreateHtmlDir () {
+    echo "Creating directory $1"
+    mkdir -p $1
+    /bin/chown -R $HTTPD_USER:$HTTPD_USER $1
+    /bin/chmod -R 755 $1
 }
 
 # create a directory and set its ownershp and permisisons
@@ -237,6 +248,7 @@ PostConfig () {
     RegisterAdmin
     AddUser
     CreateServerFile 
+    CreateHtmlDir $IPOP_PHP_DIR
 }
 
 #=============================================================== 
