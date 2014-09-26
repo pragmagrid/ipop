@@ -72,7 +72,8 @@ AddUser () {
     . $INFO
 
     if  $CMD status > /dev/null; then
-        $CMD register $xmpp_username $IPOPHOST $xmpp_password
+        # same IPOUSER and IPOHOST as were used for generating ipopserver.info file
+        $CMD register $IPOPUSER $IPOPHOST $xmpp_password
     fi
 }
 
@@ -246,8 +247,8 @@ PreConfig () {
 # post startup tasks
 PostConfig () {
     RegisterAdmin
-    AddUser
     CreateServerFile 
+    AddUser
     CreateHtmlDir $IPOP_PHP_DIR
 }
 
