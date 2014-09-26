@@ -1,11 +1,11 @@
 {
-    "xmpp_username": "ipopuser@ejabberd",
-    "xmpp_password": "pragma",
-    "xmpp_host": "@IP@",
-    "ip4": "@IPIPOP@",
-    "ip4_mask": @CIDR@,
+    "xmpp_username": "@xmpp_username@",
+    "xmpp_password": "@xmpp_password@",
+    "xmpp_host": "@xmpp_host@",
+    "ip4": "@ip4@",
+    "ip4_mask": 24,
     "controller_logging": "CRITICAL",
     "tincan_logging": 0,
     "sec": false,
-    "stun": ["@IP@:3478"]
+    "stun": ["@xmpp_host@:3478"]
 }
