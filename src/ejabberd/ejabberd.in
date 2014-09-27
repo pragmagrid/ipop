@@ -2,7 +2,7 @@
 #
 # ejabberd    Start and stop ejabberd.
 
-# chkconfig: - 40 60
+# chkconfig: 5 40 60
 # description: ejabberd
 # processname: ejabberd
 # pidfile: /var/run/ejabberd.pid
