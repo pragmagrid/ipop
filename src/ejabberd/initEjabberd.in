@@ -39,6 +39,9 @@ SetDefaults() {
     HTTPD_USER=apache
     IPOP_PHP_DIR=/var/www/html/ipop
 
+    # first and last octet to use for setting host ipop ip
+    OCTET1=172
+    OCTET4=254
     # get server hostname and ip address
     ServerPublicInfo
 }
@@ -46,12 +49,16 @@ SetDefaults() {
 # create admin user password
 CreateAdminPass () {
     echo "Creating admin user password file"
-    if [ ! -f $IPOPPASS ] ; then
-        word=`mkpasswd -l 8 -d 2 -C 3 -s 0`   # random password 
-        /bin/echo $word > $IPOPPASS
-        /bin/chown -R $EJUSER:$EJUSER $IPOPPASS
-        /bin/chmod -R 600 $IPOPPASS
+    # save previous 
+    if [ -f $IPOPPASS ] ; then
+	/bin/mv $IPOPPASS $IPOPPASS.$DATE
+        echo "INFO: Saved previous $IPOPPASS as $IPOPPASS.$DATE"
     fi
+
+    word=`mkpasswd -l 8 -d 2 -C 3 -s 0`   # random password 
+    /bin/echo $word > $IPOPPASS
+    /bin/chown -R $EJUSER:$EJUSER $IPOPPASS
+    /bin/chmod -R 600 $IPOPPASS
 }
 
 # add admin user
@@ -78,24 +85,28 @@ AddUser () {
 }
 
 CreateServerFile () {
-    if [ ! -f $INFO ] ; then
-        # use host IP for ipop IP: change first octet to 172, last octet to 1
-        ipopIP=`echo $hostIP | sed -e "s%^[0-9][0-9]*%172%" -e "s%[0-9][0-9]*$%1%"`
-
-        # ipop user password
-        xmpp_password=`mkpasswd -l 8 -d 2 -C 3 -s 0` 
-
-        echo "xmpp_username=$IPOPUSER@$IPOPHOST"  > $INFO
-        echo "xmpp_password=$xmpp_password" >> $INFO
-        echo "xmpp_host=$hostIP" >> $INFO
-        echo "ip4=$ipopIP" >> $INFO
+    # save previous 
+    if [ -f $INFO ] ; then
+	/bin/mv $IINFO $INFO.$DATE
+        echo "INFO: Saved previous $INFO as $INFO.$DATE"
     fi
+
+    # use host IP for ipop IP: change first octet and last octets
+    ipopIP=`echo $hostIP | sed -e "s%^[0-9][0-9]*%$OCTET1%" -e "s%[0-9][0-9]*$%$OCTET4%"`
+
+    # ipop user password
+    xmpp_password=`mkpasswd -l 8 -d 2 -C 3 -s 0` 
+
+    echo "xmpp_username=$IPOPUSER@$IPOPHOST"  > $INFO
+    echo "xmpp_password=$xmpp_password" >> $INFO
+    echo "xmpp_host=$hostIP" >> $INFO
+    echo "ip4=$ipopIP" >> $INFO
 }
 
 # create a html directory for ipop
 CreateHtmlDir () {
     echo "Creating directory $1"
-    mkdir -p $1
+    /bin/mkdir -p $1
     /bin/chown -R $HTTPD_USER:$HTTPD_USER $1
     /bin/chmod -R 755 $1
 }
@@ -103,7 +114,7 @@ CreateHtmlDir () {
 # create a directory and set its ownershp and permisisons
 CreateDir () {
     echo "Creating directory $1"
-    mkdir -p $1
+    /bin/mkdir -p $1
     /bin/chown -R $EJUSER:$EJUSER $1
     /bin/chmod -R 750 $1
 }
@@ -113,7 +124,7 @@ SetVarDirs () {
     CreateDir $LOGDIR   # create @LOGDIR@ 
     CreateDir $LOCKDIR  # create @LOCKDIR@
     CreateDir $SPOOLDIR # create @SPOOLDIR@ 
-    rm -f $SPOOLDIR/*   # clear out existing db
+    /bin/rm -f $SPOOLDIR/*   # clear out existing db
 }
 
 # set cookie file permissions
@@ -121,16 +132,6 @@ SetCookieFile () {
     echo "Setting $COOKIEFILE permissions"
     COOKIEFILE=$SPOOLDIR/.erlang.cookie # erlang cookie file
     [ ! -f $COOKIEFILE ] || { /bin/chown $EJUSER:$EJUSER $COOKIEFILE ; /bin/chmod 400 $COOKIEFILE ; }
-
-    # FIXME  - more likely don't need this. See if works without
-    # fix cookie path (since ver. 2.1.0 cookie stored in /var/lib/ejabberd/spool, not in /var/lib/ejabberd
-    #if [ -f $(COOKIEFILE) ]; then
-    #    cp -pu $SPOOLDIR/{,spool/}.erlang.cookie
-    #    echo
-    #    echo The ejabberd cookie file was moved.
-    #    echo Please delete old $COOKIEFILE
-    #    echo
-    #fi
 }
 
 ServerPublicInfo () {
@@ -146,7 +147,7 @@ CreateCtlConfig () {
     CTLCFG=$ETCDIR/ejabberdctl.cfg     # ejabberd config file
     echo "Creating $CTLCFG config file."
 
-    # save previous config 
+    # save previous 
     if [ -f $CTLCFG ] ; then
 	/bin/mv $CTLCFG $CTLCFG.$DATE
         echo "INFO: Saved previous $CTLCFG as $CTLCFG.$DATE"
@@ -195,12 +196,17 @@ CreateYmlConfig () {
 
 CreateSSLCert () {
     # Create SSL certificate with default values if it doesn't exist
-    if [ ! -f $PEMFILE ] ; then
-        echo "Generating SSL certificate $PEMFILE ..."
-        HOSTNAME=$(hostname -s 2>/dev/null || echo "localhost")
-        DOMAINNAME=$(hostname -d 2>/dev/null || echo "localdomain")
-        openssl req -new -x509 -days 365 -nodes -out $PEMFILE \
-                -keyout $PEMFILE > /dev/null 2>&1 << EOF
+    echo "Generating SSL certificate $PEMFILE ..."
+    HOSTNAME=$(hostname -s 2>/dev/null || echo "localhost")
+    DOMAINNAME=$(hostname -d 2>/dev/null || echo "localdomain")
+
+    # save previous 
+    if [ -f $PEMFILE ] ; then
+	/bin/mv $PEMFILE $PEMFILE.$DATE
+        echo "INFO: Saved previous $PEMFILE as $PEMFILE.$DATE"
+    fi
+    openssl req -new -x509 -days 365 -nodes -out $PEMFILE \
+            -keyout $PEMFILE > /dev/null 2>&1 << EOF
 .
 .
 .
@@ -212,7 +218,6 @@ EOF
 
     /bin/chown $EJUSER:$EJUSER $PEMFILE
     /bin/chmod 600 $PEMFILE
-    fi
 }
 
 UpdatePermissions () {
