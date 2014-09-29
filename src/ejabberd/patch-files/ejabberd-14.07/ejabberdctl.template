@@ -23,7 +23,7 @@ if [ "$INSTALLUSER" != "" ] ; then
     EXEC_CMD="false"
     for GID in `id -G`; do
         if [ $GID -eq 0 ] ; then
-            EXEC_CMD="su $INSTALLUSER -p -c"
+            EXEC_CMD="su $INSTALLUSER -s /bin/bash -p -c"
         fi
     done
     if [ `id -g` -eq `id -g $INSTALLUSER` ] ; then
@@ -167,6 +167,7 @@ export ERL_EPMD_ADDRESS
 export ERL_INETRC
 export ERL_MAX_PORTS
 export ERL_MAX_ETS_TABLES
+export HOME
 
 # start server
 start()
