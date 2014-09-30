@@ -13,7 +13,7 @@
   $IPOP_CONFIG="/opt/ipop/etc/config.json";
   $IPOP_IP_DB="db.json";
 
-  header('Content-Type: application/json');
+  header("Content-Type: text/plain"); 
   date_default_timezone_set('UTC');
 
   /* Check that apache perms are set correctly */
@@ -47,8 +47,9 @@
       }
     }
     /* create a fresh db */
-    $num_ips_left = pow(2, 32 - $ipop_json->{"ip4_mask"}) - 1;
-    $ipop_db = array( "last_ip" => $ipop_json->{"ip4"}, "num_ips_left" => $num_ips_left  );
+    $num_ips_left = pow(2, 32 - $ipop_json->{"ip4_mask"}) - 2;
+    $last_ip = long2ip(ip2long($ipop_json->{"ip4"}) - $num_ips_left);
+    $ipop_db = array( "last_ip" => $last_ip, "num_ips_left" => $num_ips_left  );
     $ipop_db = json_decode(json_encode($ipop_db));
   }
 
