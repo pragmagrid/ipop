@@ -38,6 +38,7 @@ SetDefaults() {
 
     HTTPD_USER=apache
     IPOP_PHP_DIR=/var/www/html/ipop
+    IPOP_IP_DB=$IPOP_PHP_DIR/db.json
 
     # first and last octet to use for setting host ipop ip
     OCTET1=172
@@ -105,6 +106,10 @@ CreateServerFile () {
 
 # create a html directory for ipop
 CreateHtmlDir () {
+    if [ -f $IPOP_IP_DB ]; then
+      /bin/mv $IPOP_IP_DB $IPOP_IP_DB.$DATE
+      echo "INFO: Saved previous $$IPOP_IP_DB as $$IPOP_IP_DB.$DATE"
+    fi
     echo "Creating directory $1"
     /bin/mkdir -p $1
     /bin/chown -R $HTTPD_USER:$HTTPD_USER $1
