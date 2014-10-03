@@ -2,7 +2,7 @@
 #
 # ejabberd    Start and stop ejabberd.
 
-# chkconfig: 5 40 60
+# chkconfig: 5 93 60
 # description: ejabberd
 # processname: ejabberd
 # pidfile: /var/run/ejabberd.pid
@@ -23,6 +23,7 @@ INSTDIR=@PKGROOT@
 CONFIG_FILE=$INSTDIR/etc/ejabberd.yml
 CTL_CONFIG_FILE=$INSTDIR/etc/ejabberdctl.cfg
 ULIMIT_MAX_FILES=1024
+EJABBERD_FRESH_INIT=$INSTDIR/etc/init.boot
 
 # we're using symlinked consolehelper to check user's rights
 progctl=$INSTDIR/sbin/ejabberdctl
@@ -32,6 +33,11 @@ start() {
 	if [ "$ULIMIT_MAX_FILES" ]; then
 		ulimit -n $ULIMIT_MAX_FILES
 	fi
+
+        if [ -f ${EJABBERD_FRESH_INIT} ]; then
+          mv ${EJABBERD_FRESH_INIT} ${EJABBERD_FRESH_INIT}.old
+          $INSTDIR/bin/initEjabberd
+        fi
 
 	# check whether ejabberd was already started
 	if $progctl status > /dev/null 2>&1 ; then
