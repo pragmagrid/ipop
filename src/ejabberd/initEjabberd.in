@@ -35,6 +35,7 @@ SetDefaults() {
     DATE=$(/bin/date +%Y%m%d-%H%M)	# timestamp when scirpt is run
 
     INFO=@IPOPDIR@/etc/ipopserver.info	# ipop server info file
+    CONFIG=@IPOPDIR@/etc/config.json    # ipop server config file
 
     HTTPD_USER=apache
     IPOP_PHP_DIR=/var/www/html/ipop
@@ -90,6 +91,10 @@ CreateServerFile () {
     if [ -f $INFO ] ; then
 	/bin/mv $IINFO $INFO.$DATE
         echo "INFO: Saved previous $INFO as $INFO.$DATE"
+    fi
+    if [ -f $CONFIG ] ; then
+        /bin/mv $CONFIG $CONFIG.$DATE
+        echo "INFO: Saved previous $CONFIG as $CONFIG.$DATE"
     fi
 
     # use host IP for ipop IP: change first octet and last octets
