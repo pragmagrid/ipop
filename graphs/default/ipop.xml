@@ -16,11 +16,11 @@
 	</changelog>
 
 	<edge from="server" to="ipop-server"/>
-	<edge from="server" to="ipop-common"/>
-	<edge from="client" to="ipop-common"/>
+	<edge from="server" to="ipop-client"/>
+	<edge from="client" to="ipop-client"/>
 
-	<order head="ipop-common">
-		<tail>ipop-server</tail>
+	<order head="ipop-server">
+		<tail>ipop-client</tail>
 	</order>
 
 </graph>

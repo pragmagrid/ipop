@@ -30,7 +30,6 @@
 /sbin/chkconfig --add ejabberd
 
 /opt/ipop/ejabberd/bin/initEjabberd
-/opt/ipop/bin/updateConfJson
 
 </post>
 
