@@ -89,7 +89,7 @@ AddUser () {
 CreateServerFile () {
     # save previous 
     if [ -f $INFO ] ; then
-	/bin/mv $IINFO $INFO.$DATE
+	/bin/mv $INFO $INFO.$DATE
         echo "INFO: Saved previous $INFO as $INFO.$DATE"
     fi
     if [ -f $CONFIG ] ; then
