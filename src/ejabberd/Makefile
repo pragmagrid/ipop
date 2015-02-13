@@ -68,6 +68,7 @@ SEDSPEC += \
         -e 's%@LOGDIR@%$(LOGDIR)%g' \
         -e 's%@LOCKDIR@%$(LOCKDIR)%g' \
         -e 's%@SPOOLDIR@%$(SPOOLDIR)%g' \
+        -e 's%@TURNUSER@%$(TURNUSER)%g' \
         -e 's%@VERSION@%$(VERSION)%g'
 
 SCRIPTS = \

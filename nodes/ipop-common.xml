@@ -24,8 +24,6 @@
 
 /sbin/chkconfig --add ipop
 
-/etc/init.d/ipop start
-
 </post>
 
 </kickstart>

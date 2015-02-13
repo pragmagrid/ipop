@@ -1,0 +1,86 @@
+#!/bin/bash
+#
+# turnserver Start and stop turnserver.
+
+# chkconfig: 5 99 01
+# description: turn server for ipop
+# processname: turnserver
+
+### BEGIN INIT INFO
+# Provides: ipop-turn
+# Required-Start: network
+# Required-Stop: network
+# Default-Start:
+# Default-Stop: 0 1 6
+# Short-Description: Start and stop turnserver for ipop
+# Description: open-source TURN server implementation that allows a client to obtain IP addresses and ports from elements behind symmetric NATs or firewalls 
+
+### END INIT INFO
+
+. /etc/rc.d/init.d/functions
+
+INSTDIR=@PKGROOT@
+LOGDIR=@LOGDIR@
+CONFIG_FILE=$INSTDIR/etc/turn.conf
+PID_FILE=@PIDDIR@/turnserver.pid
+LOCK_FILE=@LOCKDIR@/turnserver
+LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/confuse/lib
+export LD_LIBRARY_PATH
+
+start() {
+        echo -n "Starting turnserver: "
+
+        if [ ! -f "$CONFIG_FILE" ]; then
+          $INSTDIR/sbin/updateConf
+          if [ $? != 0 ]; then
+            echo "Error, $CONFIG_FILE not found; unable to configure TURN" >&2
+            failure "turnserver start"
+            return 1
+          fi
+        fi
+
+        daemon $INSTDIR/sbin/turnserver -c $CONFIG_FILE &> $LOGDIR/turn.log &
+
+        RETVAL=$?
+        if [ $RETVAL -eq 0 ]; then
+          pidofproc $INSTDIR/sbin/turnserver > $PID_FILE
+          touch $LOCK_FILE && success
+        fi
+        echo
+        return $RETVAL
+}
+
+stop() {
+        echo -n "Shutting down turnserver: "
+
+        killproc -p $PID_FILE
+        RETVAL=$?
+        echo
+        [ $RETVAL = 0 ] && rm -f $LOCK_FILE $PID_FILE
+}
+
+restart() {
+        stop
+	sleep 5
+        start
+}
+
+# See how we were called.
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  restart)
+        restart
+        ;;
+  *)
+        echo "Usage: turnserver {start|stop|restart}"
+        exit 2
+esac
+
+exit $?
+
+

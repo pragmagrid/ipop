@@ -32,7 +32,9 @@ SetDefaults() {
     IPOPHOST=ejabberd			# ipop host
     IPOPPASS=$ETCDIR/.ejabberd.pass	# ipop admin user password
 
-    DATE=$(/bin/date +%Y%m%d-%H%M)	# timestamp when scirpt is run
+    TURNUSER=@TURNUSER@                 # turn user
+
+    DATE=$(/bin/date +%Y%m%d-%H%M)	# timestamp when script is run
 
     INFO=@IPOPDIR@/etc/ipopserver.info	# ipop server info file
     CONFIG=@IPOPDIR@/etc/config.json    # ipop server config file
@@ -107,6 +109,12 @@ CreateServerFile () {
     echo "xmpp_password=$xmpp_password" >> $INFO
     echo "xmpp_host=$hostIP" >> $INFO
     echo "ip4=$ipopIP" >> $INFO
+
+    # turn user password
+    turn_password=`mkpasswd -l 8 -d 2 -C 3 -s 0` 
+    echo "turn_username=$TURNUSER"  >> $INFO
+    echo "turn_host=$hostIP" >> $INFO
+    echo "turn_password=$turn_password" >> $INFO
 }
 
 # create a html directory for ipop

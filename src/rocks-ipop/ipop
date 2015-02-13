@@ -22,6 +22,8 @@
 INSTDIR=/opt/ipop
 LOGDIR=/var/log/ipop
 CONFIG_FILE=$INSTDIR/etc/config.json
+LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/python/lib
+export LD_LIBRARY_PATH
 
 start() {
         echo -n "Starting ipop: "

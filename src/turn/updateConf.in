@@ -1,11 +1,10 @@
 #!/bin/bash
 
-# Create config.json file from a tempalte and a server info files. 
+# Create turn.conf file from a template and a server info files. 
 # The ipopsesrver.info file has the followign format and expected variable names:
-# xmpp_username=admin@ejabberd
-# xmpp_password=abc
-# xmpp_host=111.222.333.444
-# ip4=172.171.170.X
+# turn_username=admin@ejabberd
+# turn_password=abc
+# turn_host=111.222.333.444
 
 ###########################
 ###  define functions 
@@ -13,10 +12,12 @@
 
 # expected files locations
 set_defaults () {
-    IPOP_DIR=/opt/ipop
-    TEMPL=$IPOP_DIR/etc/config.json.template
-    CONFIG=$IPOP_DIR/etc/config.json
-    INFO=$IPOP_DIR/etc/ipopserver.info
+    TURN_DIR=@PKGROOT@
+    CONFIG=$TURN_DIR/etc/turn.conf
+    CONFIG_TEMPL=$CONFIG.template
+    USERS=$TURN_DIR/etc/turnusers.txt
+    USERS_TEMPL=$USERS.template
+    INFO=$TURN_DIR/../etc/ipopserver.info
 }
 
 # check info file has all needed variables
@@ -24,10 +25,6 @@ check_vars () {
     [ -f $INFO ] || { echo "Missing $INFO to create config file. Exiting"; exit 1; }
     . $INFO
     err=""
-    [ "$xmpp_username"  ] || { err=$err" xmpp_username"; }
-    [ "$xmpp_password" ] || { err=$err" xmpp_password"; }
-    [ "$xmpp_host" ] || { err=$err" xmpp_host"; }
-    [ "$ip4" ] || { err=$err" ip4"; }
     [ "$turn_username"  ] || { err=$err" turn_username"; }
     [ "$turn_password" ] || { err=$err" turn_password"; }
     [ "$turn_host" ] || { err=$err" turn_host"; }
@@ -39,25 +36,31 @@ check_vars () {
 }
 
 # save previous config if exists
-save_config () {
+save_files() {
     if [ -f $CONFIG ]; then
         ext=`date +%Y%m%d-%H%M`
         echo "Saving previous config file as $CONFIG.$ext "
         /bin/mv $CONFIG $CONFIG.$ext
     fi
+    if [ -f $USERS ]; then
+        ext=`date +%Y%m%d-%H%M`
+        echo "Saving previous config file as $USERS.$ext "
+        /bin/mv $USERS $USERS.$ext
+    fi
 }
 
 # create config file
-create_config () {
+create_files() {
     echo "Creating $CONFIG config file"
-    /bin/sed  -e "s%@xmpp_username@%$xmpp_username%" \
-              -e "s%@xmpp_password@%$xmpp_password%" \
-              -e "s%@xmpp_host@%$xmpp_host%" \
-              -e "s%@ip4@%$ip4%" \
-              -e "s%@turn_username@%$turn_username%" \
+    /bin/sed  -e "s%@turn_username@%$turn_username%" \
               -e "s%@turn_password@%$turn_password%" \
               -e "s%@turn_host@%$turn_host%" \
-              $TEMPL > $CONFIG
+              $CONFIG_TEMPL > $CONFIG
+    echo "Creating $USERS file"
+    /bin/sed  -e "s%@turn_username@%$turn_username%" \
+              -e "s%@turn_password@%$turn_password%" \
+              -e "s%@turn_host@%$turn_host%" \
+              $USERS_TEMPL > $USERS
 }
 
 ###########################
@@ -65,6 +68,6 @@ create_config () {
 ###########################
 set_defaults
 check_vars
-save_config
-create_config
+save_files
+create_files
 

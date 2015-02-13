@@ -29,6 +29,7 @@ during the roll build.
    :ejabberd: to run XMPP server 
    :erlang: prerequisite for ejabberd
    :ipop: tincan binary and python code 
+   :turn: turnserver binary 
 
 
 Downloads 

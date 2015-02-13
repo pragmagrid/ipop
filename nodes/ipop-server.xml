@@ -24,12 +24,21 @@
 
 	<package>ipop-ejabberd</package>
 
+	<package>ipop-turn</package>
+
 <post>
 
 /usr/sbin/useradd -s /sbin/nologin -d /var/lib/ejabberd -M -c "Ejabberd XMPP user" ejabberd 
 /sbin/chkconfig --add ejabberd
+/sbin/chkconfig --add turnserver
 
 /opt/ipop/ejabberd/bin/initEjabberd
+/opt/ipop/turn/sbin/updateConf
+/opt/ipop/bin/updateConfJson
+
+rocks remove firewall host=localhost A40-WWW-PUBLIC-LAN
+rocks add firewall host=localhost rulename=A40-WWW-PUBLIC-LAN network=public service="www" protocol="tcp" action="ACCEPT" chain="INPUT" flags="-m state --state NEW"
+rocks sync host firewall localhost
 
 </post>
 
