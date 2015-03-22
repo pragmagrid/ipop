@@ -92,7 +92,7 @@ build: $(SCRIPTS)
 		cd $(ARCHIVENAME)-$(VERSION);		\
 		export CFLAGS="-I /opt/confuse/include"; \
 		export  LDFLAGS="-L /opt/confuse/lib"; \
-		./configure --prefix=$(PKGROOT);	\
+		ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes ./configure --prefix=$(PKGROOT);	\
 		$(MAKE);				\
 	)
 
