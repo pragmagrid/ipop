@@ -91,7 +91,8 @@ build: $(SCRIPTS)
 	cp ejabberd.yml.template $(ARCHIVENAME)-$(VERSION)
 	(\
 		cd $(ARCHIVENAME)-$(VERSION);	\
-		 ./configure --with-erlang=$(ERLDIR) --prefix=$(PKGROOT) --localstatedir=/var --enable-user=$(EJUSER); \
+		./autogen.sh; \
+		./configure --with-erlang=$(ERLDIR) --prefix=$(PKGROOT) --localstatedir=/var --enable-user=$(EJUSER); \
 		$(MAKE);    \
 	)
 

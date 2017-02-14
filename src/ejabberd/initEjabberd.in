@@ -13,17 +13,16 @@
 
 # set installation variables 
 SetDefaults() {
-    # export rocks commands
     export PATH=$PATH:/opt/rocks/bin    # include rocks commands
 
-    INSTDIR=@PKGROOT@		# install dir
+    INSTDIR=@PKGROOT@			# install dir
     CMD=$INSTDIR/sbin/ejabberdctl	# ejabberd command
     EJUSER=@EJUSER@			# user to run daemons
     ETCDIR=$INSTDIR/etc			# directory for config and auth files
 
-    LOGDIR=@LOGDIR@		# log directory
-    LOCKDIR=@LOCKDIR@	# lock directory
-    SPOOLDIR=@SPOOLDIR@		# spool directory
+    LOGDIR=@LOGDIR@			# log directory
+    LOCKDIR=@LOCKDIR@			# lock directory
+    SPOOLDIR=@SPOOLDIR@			# spool directory
 
     PEMFILE=$ETCDIR/ejabberd.pem	# pem file
 
@@ -32,12 +31,12 @@ SetDefaults() {
     IPOPHOST=ejabberd			# ipop host
     IPOPPASS=$ETCDIR/.ejabberd.pass	# ipop admin user password
 
-    TURNUSER=@TURNUSER@                 # turn user
+    #TURNUSER=@TURNUSER@                 # turn user
 
     DATE=$(/bin/date +%Y%m%d-%H%M)	# timestamp when script is run
 
     INFO=@IPOPDIR@/etc/ipopserver.info	# ipop server info file
-    CONFIG=@IPOPDIR@/etc/config.json    # ipop server config file
+    CONFIG=@IPOPDIR@/etc/ipop-config.json    # ipop server config file
 
     HTTPD_USER=apache
     IPOP_PHP_DIR=/var/www/html/ipop
@@ -56,7 +55,7 @@ CreateAdminPass () {
     # save previous 
     if [ -f $IPOPPASS ] ; then
 	/bin/mv $IPOPPASS $IPOPPASS.$DATE
-        echo "INFO: Saved previous $IPOPPASS as $IPOPPASS.$DATE"
+        echo "Saved previous $IPOPPASS as $IPOPPASS.$DATE"
     fi
 
     word=`mkpasswd -l 8 -d 2 -C 3 -s 0`   # random password 
@@ -81,7 +80,6 @@ AddUser () {
     echo "Creating user account"
 
     . $INFO
-
     if  $CMD status > /dev/null; then
         # same IPOUSER and IPOHOST as were used for generating ipopserver.info file
         $CMD register $IPOPUSER $IPOPHOST $xmpp_password
@@ -92,11 +90,11 @@ CreateServerFile () {
     # save previous 
     if [ -f $INFO ] ; then
 	/bin/mv $INFO $INFO.$DATE
-        echo "INFO: Saved previous $INFO as $INFO.$DATE"
+        echo "Saved previous $INFO as $INFO.$DATE"
     fi
     if [ -f $CONFIG ] ; then
         /bin/mv $CONFIG $CONFIG.$DATE
-        echo "INFO: Saved previous $CONFIG as $CONFIG.$DATE"
+        echo "Saved previous $CONFIG as $CONFIG.$DATE"
     fi
 
     # use host IP for ipop IP: change first octet and last octets
@@ -104,24 +102,23 @@ CreateServerFile () {
 
     # ipop user password
     xmpp_password=`mkpasswd -l 8 -d 2 -C 3 -s 0` 
-
     echo "xmpp_username=$IPOPUSER@$IPOPHOST"  > $INFO
     echo "xmpp_password=$xmpp_password" >> $INFO
     echo "xmpp_host=$hostIP" >> $INFO
     echo "ip4=$ipopIP" >> $INFO
 
     # turn user password
-    turn_password=`mkpasswd -l 8 -d 2 -C 3 -s 0` 
-    echo "turn_username=$TURNUSER"  >> $INFO
-    echo "turn_host=$hostIP" >> $INFO
-    echo "turn_password=$turn_password" >> $INFO
+    #turn_password=`mkpasswd -l 8 -d 2 -C 3 -s 0` 
+    #echo "turn_username=$TURNUSER"  >> $INFO
+    #echo "turn_host=$hostIP" >> $INFO
+    #echo "turn_password=$turn_password" >> $INFO
 }
 
 # create a html directory for ipop
 CreateHtmlDir () {
     if [ -f $IPOP_IP_DB ]; then
       /bin/mv $IPOP_IP_DB $IPOP_IP_DB.$DATE
-      echo "INFO: Saved previous $$IPOP_IP_DB as $$IPOP_IP_DB.$DATE"
+      echo "Saved previous $$IPOP_IP_DB as $$IPOP_IP_DB.$DATE"
     fi
     echo "Creating directory $1"
     /bin/mkdir -p $1
@@ -168,7 +165,7 @@ CreateCtlConfig () {
     # save previous 
     if [ -f $CTLCFG ] ; then
 	/bin/mv $CTLCFG $CTLCFG.$DATE
-        echo "INFO: Saved previous $CTLCFG as $CTLCFG.$DATE"
+        echo "Saved previous $CTLCFG as $CTLCFG.$DATE"
     fi
 
     # create new config 
@@ -198,7 +195,7 @@ CreateYmlConfig () {
     # save previous config 
     if [ -f $YMLCFG ] ; then
 	/bin/mv $YMLCFG $YMLCFG.$DATE
-        echo "INFO: Saved previous $YMLCFG as $YMLCFG.$DATE"
+        echo "Saved previous $YMLCFG as $YMLCFG.$DATE"
     fi
 
     # create new config 
@@ -221,7 +218,7 @@ CreateSSLCert () {
     # save previous 
     if [ -f $PEMFILE ] ; then
 	/bin/mv $PEMFILE $PEMFILE.$DATE
-        echo "INFO: Saved previous $PEMFILE as $PEMFILE.$DATE"
+        echo "Saved previous $PEMFILE as $PEMFILE.$DATE"
     fi
     openssl req -new -x509 -days 365 -nodes -out $PEMFILE \
             -keyout $PEMFILE > /dev/null 2>&1 << EOF
@@ -248,7 +245,7 @@ UpdatePermissions () {
     /bin/chown $EJUSER:$EJUSER $CMD
 
     # for @PKGROOT@/lib/ejabberd/priv/bin/
-    CAPTCHA=@PKGROOT@/lib/ejabberd/priv/bin/captcha.sh
+    CAPTCHA=@PKGROOT@/lib/ejabberd-@VERSION@/priv/bin/captcha.sh
     /bin/chown $EJUSER:$EJUSER $CAPTCHA
 
     EPAM=@PKGROOT@/lib/ejabberd/priv/bin/epam

@@ -117,8 +117,8 @@ listen:
     ##
     ## Custom OpenSSL options
     ##
-    ## protocol_options:
-    ##   - "no_sslv3"
+    protocol_options:
+      - "no_sslv3"
     ##   - "no_tlsv1"
     max_stanza_size: 65536
     shaper: c2s_shaper
@@ -557,6 +557,7 @@ language: "en"
 ## Modules enabled in all ejabberd virtual hosts.
 ##
 modules: 
+  mod_admin_extra: {}
   mod_adhoc: {}
   mod_announce: # recommends mod_adhoc
     access: announce
@@ -572,6 +573,7 @@ modules:
   ##   docroot: "/var/www"
   ##   accesslog: "/var/log/ejabberd/access.log"
   mod_last: {}
+  mod_mam: {} 
   mod_muc: 
     ## host: "conference.@HOST@"
     access: muc
