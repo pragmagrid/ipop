@@ -10,7 +10,7 @@
  * @author     Shava Smallen <ssmallen@sdsc.edu>
  */
 
-  $IPOP_CONFIG="/opt/ipop/etc/config.json";
+  $IPOP_CONFIG="@IPOPDIR@/etc/@IPOPCONFIG@";
   $IPOP_IP_DB="db.json";
 
   header("Content-Type: text/plain"); 

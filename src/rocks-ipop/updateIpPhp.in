@@ -1,0 +1,16 @@
+#!/bin/bash
+
+HTMLDIR=/var/www/html/ipop
+PROG=ip.php
+
+if [ ! -d $HTMLDIR ]; then
+    mkdir -p $HTMLDIR
+fi
+
+if [ ! -f $HTMLDIR/$PROG ]; then
+    /bin/cp @IPOPDIR@/bin/$PROG $HTMLDIR
+    chmod 755 $HTMLDIR/$PROG
+fi
+
+chown -R apache.apache $HTMLDIR
+

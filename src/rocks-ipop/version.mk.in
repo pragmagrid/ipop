@@ -1,0 +1,8 @@
+VERSION.MK.MASTER = $(REDHAT.ROOT)/ipop.mk
+VERSION.MK.INCLUDE = ipop.version.mk
+include $(VERSION.MK.INCLUDE)
+
+PKGROOT = $(IPOPDIR)
+VERSION = $(IPOPVERSION)
+RELEASE = 0
+NAME    = rocks-ipop

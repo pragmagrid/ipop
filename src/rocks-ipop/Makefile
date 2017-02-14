@@ -62,18 +62,29 @@ HTML_DIR = $(ROOT)/var/www/html
 -include $(ROCKSROOT)/etc/Rules.mk
 include Rules.mk
 
+SEDSPEC += \
+	-e 's%@IPOPDIR@%$(IPOPDIR)%g' \
+	-e 's%@IPOPCONFIG@%$(IPOPCONFIG)%g' 
 
-SCRIPTS = start-gvpn stop-gvpn updateConfJson
+pretar:: $(VERSION.MK.INCLUDE)
 
-build::
-	
+$(VERSION.MK.INCLUDE): 
+	if [ -f $(VERSION.MK.MASTER) ]; then \
+		/bin/cp $(VERSION.MK.MASTER) $@; \
+	fi
+
+%: %.in
+	$(SED) $(SEDSPEC) $^ > $@
+
+SCRIPTS = ip.php updateIpPhp
+
+pre-build: version.mk $(SCRIPTS)
+
+build: version.mk $(SCRIPTS)
+
 install::
 	mkdir -p $(ROOT)/$(PKGROOT)/bin
-	$(INSTALL) -m 755 $(SCRIPTS) $(ROOT)/$(PKGROOT)/bin
-	mkdir -p $(ROOT)/$(PKGROOT)/etc
-	$(INSTALL) -m644 config.json.template  $(ROOT)/$(PKGROOT)/etc
-	mkdir -p $(HTML_DIR)/ipop
-	chown apache.apache $(HTML_DIR)/ipop
-	$(INSTALL) -m644 ip.php $(HTML_DIR)/ipop
-	mkdir -p $(ROOT)/etc/rc.d/init.d
-	$(INSTALL) -m755 ipop $(ROOT)/etc/rc.d/init.d
+	$(INSTALL) -m755 $(SCRIPTS) $(ROOT)/$(PKGROOT)/bin
+
+clean::
+	rm -rf version.mk $(VERSION.MK.INCLUDE) $(SCRIPTS)
