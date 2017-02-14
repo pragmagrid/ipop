@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# This script starts processes: ipop-tincan and gvpn_controller
+# A configuration file for controller is either :
+#    a default 
+#    file name is passed as a firts argumetn to the script 
+
+# sets logging files and config file for controller
+set_defaults () {
+    PYTHON=@PYTHON@
+    LOGDIR=@IPOPLOGDIR@
+    OUT=$LOGDIR/ipop-tincan.out                  # ipop-tincan output 
+    ERR=$LOGDIR/ipop-tincan.err                  # ipop-tincan error 
+    LOG=$LOGDIR/ipop-controller.log              # controller log
+    DEFAULT_CONF=@IPOPDIR@/etc/@IPOPCONFIG@      # default controller config file
+}
+
+# set config file
+set_config () {
+    if [ "$1" = "" ] ; then
+        CONF=$DEFAULT_CONF # use default config file
+    else
+        CONF=$1            # use config file passed as first argument
+    fi
+    [ -f $CONF ] || { echo "File $CONF does not exist" ;  exit ; }
+}
+
+# create logging directory
+set_logdir () {
+    if [ ! -d $LOGDIR ] ; then
+	/bin/mkdir -p $LOGDIR
+    fi
+}
+
+# start tincan daemon
+start_tincan () {
+    echo "Starting ipop-tincan ..."
+    @IPOPDIR@/bin/ipop-tincan > $OUT 2> $ERR &
+}
+
+# start controller
+start_controller () {
+    echo "Starting controller with configuration file $CONF ..."
+    $PYTHON -m controller.Controller -c $CONF &> $LOG &
+}
+
+#### Main ####
+set_defaults
+set_config $@
+set_logdir
+start_tincan
+start_controller

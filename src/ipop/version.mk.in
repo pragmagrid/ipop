@@ -1,0 +1,10 @@
+VERSION.MK.MASTER = $(REDHAT.ROOT)/ipop.mk
+VERSION.MK.INCLUDE = ipop.version.mk
+include $(VERSION.MK.INCLUDE)
+
+PKGROOT          = $(IPOPDIR)
+NAME             = ipop
+VERSION          = $(IPOPVERSION)
+ARCHNAME         = centos7
+RELEASE          = 0
+TARBALL_POSTFIX  = tar.gz

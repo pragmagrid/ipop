@@ -1,0 +1,62 @@
+#!/bin/bash
+
+# Create config.json file from a template and a server info files. 
+# The ipopsesrver.info file has the following format and expected variable names:
+#         xmpp_username=admin@ejabberd
+#         xmpp_password=abc
+#         xmpp_host=111.222.333.444
+#         ip4=172.171.170.X
+
+###########################
+###  define functions 
+###########################
+
+# expected files locations
+set_defaults () {
+    TEMPLATE=@IPOPDIR@/etc/sample-gvpn-config.json
+    CONFIG=@IPOPDIR@/etc/@IPOPCONFIG@
+    INFO=@IPOPDIR@/etc/ipopserver.info
+}
+
+# check info file has all needed variables
+check_vars () {
+    [ -f $INFO ] || { echo "Missing $INFO to create config file. Exiting"; exit 1; }
+    . $INFO
+    err=""
+    [ "$xmpp_username"  ] || { err=$err" xmpp_username"; }
+    [ "$xmpp_password" ] || { err=$err" xmpp_password"; }
+    [ "$xmpp_host" ] || { err=$err" xmpp_host"; }
+    [ "$ip4" ] || { err=$err" ip4"; }
+
+    if [ "$err" ]; then
+        echo "Missing variables in $INFO: $err" 
+        exit
+    fi
+}
+
+# save previous config if exists
+save_config () {
+    if [ -f $CONFIG ]; then
+        ext=`date +%Y%m%d-%H%M`
+        echo "Saving previous config file as $CONFIG.$ext "
+        /bin/mv $CONFIG $CONFIG.$ext
+    fi
+}
+
+# create config file
+create_config () {
+    echo "Creating $CONFIG config file"
+    /bin/sed  -e "s%@xmpp_username@%$xmpp_username%" \
+              -e "s%@xmpp_password@%$xmpp_password%" \
+              -e "s%@xmpp_host@%$xmpp_host%" \
+              -e "s%@ip4@%$ip4%" \
+              $TEMPLATE > $CONFIG
+}
+
+###########################
+###  Run script
+###########################
+set_defaults
+check_vars
+save_config
+create_config

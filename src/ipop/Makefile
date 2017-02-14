@@ -61,37 +61,50 @@ REDHAT.ROOT = $(CURDIR)/../../
 -include $(ROCKSROOT)/etc/Rules.mk
 include Rules.mk
 
-LONGNAME = $(NAME)-$(VERSION)-$(ARCHNAME)
-PYPATH = \#\!/opt/python/bin/python2\.7
+LONGNAME = $(NAME)-v$(VERSION)_$(ARCHNAME)
 
 SEDSPEC += \
-	-e '1 s%^.*$$%$(PYPATH)%g'
+	-e 's%@PKGROOT@%$(PKGROOT)%g' \
+	-e 's%@PYTHON@%$(PYTHON2)%g' \
+	-e 's%@IPOPCONFIG@%$(IPOPCONFIG)%g' \
+	-e 's%@IPOPDIR@%$(IPOPDIR)%g' \
+	-e 's%@IPOPLOGDIR@%$(IPOPLOGDIR)%g' \
+	-e 's%@VERSION@%$(IVERSION)%g' \
 
-SCRIPTS = gvpn_controller.py \
-	  svpn_controller.py \
-	  ipoplib.py \
-	  watchdog.py 
+pretar:: $(VERSION.MK.INCLUDE)
 
-gvpn_controller.py:
-	 $(SED) -i $(SEDSPEC) $(LONGNAME)/$@
+$(VERSION.MK.INCLUDE): 
+	if [ -f $(VERSION.MK.MASTER) ]; then \
+		/bin/cp $(VERSION.MK.MASTER) $@; \
+	fi
 
-svpn_controller.py:
-	 $(SED) -i $(SEDSPEC) $(LONGNAME)/$@
+%: %.in
+	$(SED) $(SEDSPEC) $^ > $@
 
-ipoplib.py:
-	 $(SED) -i $(SEDSPEC) $(LONGNAME)/$@
+INITSCRIPT =  ipop 
 
-watchdog.py:
-	 $(SED) -i $(SEDSPEC) $(LONGNAME)/$@
+SCRIPTS = \
+	start-gvpn \
+	updateConfJson
+
+pre-build: version.mk $(SCRIPTS) $(INITSCRIPT)
 	
-build:
+build:  pre-build
 	tar -xzvf  $(LONGNAME).$(TARBALL_POSTFIX) 
-	make $(SCRIPTS)
+	/bin/rm LICENSE README.md
+	cd patch-files && find . -type f | grep -v CVS | cpio -pduv ..
 	
-install::
-	mkdir -p $(ROOT)/$(PKGROOT)/
-	$(INSTALL) -m755 $(LONGNAME)/ipop-tincan  $(ROOT)/$(PKGROOT)/
-	$(INSTALL) -m755 $(LONGNAME)/*.py  $(ROOT)/$(PKGROOT)/
+install:: 
+	mkdir -p $(ROOT)/$(PKGROOT)/bin
+	mkdir -p $(ROOT)/$(PKGROOT)/etc
+	mkdir -p $(ROOT)/etc/rc.d/init.d
+	$(INSTALL) -m755 ipop-tincan  $(ROOT)/$(PKGROOT)/bin
+	$(INSTALL) -m 755 $(SCRIPTS) stop-gvpn $(ROOT)/$(PKGROOT)/bin
+	$(INSTALL) -m644 config/*  $(ROOT)/$(PKGROOT)/etc
+	$(INSTALL) -m755 $(INITSCRIPT) $(ROOT)/etc/rc.d/init.d
+	/bin/cp -r controller/  $(ROOT)/$(PKGROOT)
 
 clean::
-	rm -rf $(LONGNAME)
+	rm -rf ipop-tincan config/ controller/ LICENSE README.md
+	rm -rf $(SCRIPTS)
+	rm -rf version.mk $(VERSION.MK.INCLUDE)

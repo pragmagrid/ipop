@@ -1,0 +1,131 @@
+#!/bin/bash
+#
+# ipop  Start and stop ipop.
+
+# chkconfig: 5 99 01
+# description: ipop
+# processname: ipop-tincan
+# processname: controller.Controller 
+
+### BEGIN INIT INFO
+# Provides: ipop
+# Required-Start: network
+# Required-Stop: network
+# Default-Start:
+# Default-Stop: 0 1 6
+# Short-Description: Start and stop ipop
+# Description: An open-source user-centric allowing end users to define and create their own virtual private networks (VPNs)
+### END INIT INFO
+
+. /etc/rc.d/init.d/functions
+
+INSTDIR=@IPOPDIR@
+LOGDIR=@IPOPLOGDIR@
+CONFIG_FILE=$INSTDIR/etc/@IPOPCONFIG@
+SERVER_INFO=$INSTDIR/etc/ipopserver.info
+LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/python/lib
+export LD_LIBRARY_PATH
+
+prog=ipop-tincan
+controller=controller.Controller
+
+c_status () {
+    PID=`ps -ef | grep $1 | grep -v grep | awk '{print $2}'`
+    if [ "$PID" == ""  ]; then
+        echo $controller is stopped
+    else
+        echo "$controller (pid $PID) is running..."
+    fi
+}
+
+start() {
+        echo -n "Starting ipop: "
+
+        if [ ! -f "$CONFIG_FILE" ]; then
+          # fresh startup; IPOP needs to be initialized
+          if [ ! -f "$SERVER_INFO" ]; then
+            echo "Error, $SERVER_INFO not found; unable to configure ipop" >&2
+            failure "ipop start"
+            return 1
+          fi
+
+          # determine ipop server vs client
+          . $SERVER_INFO
+          this_host=`hostname`
+          this_ip=`host $this_host | cut -f 4 -d' '`
+          if [ "$this_ip" == "$xmpp_host" ]; then
+            # if server, correct info already exists
+            echo "Configuring IPOP server"
+          else 
+            # if client, need to get ipop ip 
+            echo "Configuring IPOP client"
+            ipop_ip=`wget -q -O - http://$xmpp_host/ipop/ip.php`
+            echo "ip4=$ipop_ip" >> $SERVER_INFO
+          fi
+          $INSTDIR/bin/updateConfJson 
+        fi
+
+        export PYTHONPATH=$INSTDIR:$PYTHONPATH
+        $INSTDIR/bin/start-gvpn 
+
+        RETVAL=0
+        if [ -s "$LOGDIR/ipop-tincan.err" ]; then
+          failure "ipop-tincan start"
+          RETVAL=1
+        elif [ -s "$LOGDIR/ipop-gvpn.log" ]; then
+          failure "ipop-gvpn start"
+          RETVAL=1
+        else
+          success "ipop start"
+          touch /var/lock/subsys/ipop
+        fi
+      
+        echo
+        return $RETVAL
+}
+
+stop() {
+        echo -n "Shutting down ipop: "
+
+        $INSTDIR/bin/stop-gvpn 
+        RETVAL=$?
+        if [ $? -eq 0 ]; then
+          success "ipop stop"
+          rm -f /var/lock/subsys/ipop
+        else 
+          failure "ipop stop"
+        fi
+
+        echo
+        return $RETVAL
+}
+
+restart() {
+        stop
+	sleep 5
+        start
+}
+
+# See how we were called.
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  restart)
+        restart
+        ;;
+  status)
+        status $prog
+        c_status $controller
+        RETVAL=$?
+        ;;
+
+  *)
+        echo "Usage: ipop {start|stop|status|restart}"
+        exit 2
+esac
+
+exit $?
