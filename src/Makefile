@@ -59,6 +59,8 @@
 -include $(shell $(ROCKSROOT)/bin/arch).mk
 -include $(shell $(ROCKSROOT)/bin/os).mk
 
+SRCDIRS = ejabberd  erlang  ipop  rocks-ipop 
+
 default:	pkg
 
 copyright pkg rpm clean::

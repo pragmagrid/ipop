@@ -31,6 +31,51 @@ during the roll build.
    :ipop: tincan binary and python code 
    :turn: turnserver binary 
 
+#.  for java-1.8.0-openjdk-1.8.0-devel yum installs :
+   
+    java-1.8.0-openjdk-1.8.0
+    java-1.8.0-openjdk-headless-1.8.0
+    tzdata-java-2016c-1
+
+#. for nss-devel yum installs dependencies :
+        nspr-4.11.0-0.1
+        nspr-devel-4.11.0-0.1
+        nss-3.21.0-0.3
+        nss-devel-3.21.0-0.3
+        nss-softokn-3.14.3-23
+        nss-softokn-devel-3.14.3-23
+        nss-softokn-freebl-3.14.3-23
+        nss-softokn-freebl-3.14.3-23
+        nss-softokn-freebl-devel-3.14.3-23
+        nss-sysinit-3.21.0-0.3
+        nss-tools-3.21.0-0.3
+        nss-util-3.21.0-0.3
+        nss-util-devel-3.21.0-0.3
+
+#. Installed:
+   /etc/yum.repos.d/devtools-1.1.repo
+
+   yum install devtoolset-1.1
+     Dependency Installed:
+       devtoolset-1.1-binutils.x86_64
+       devtoolset-1.1-dwz.x86_64 
+       devtoolset-1.1-elfutils.x86_64
+       devtoolset-1.1-elfutils-libelf.x86_64
+       devtoolset-1.1-elfutils-libs.x86_64 
+       devtoolset-1.1-gcc.x86_64 
+       devtoolset-1.1-gcc-c++.x86_64
+       devtoolset-1.1-gcc-gfortran.x86_64 
+       devtoolset-1.1-gdb.x86_64 
+       devtoolset-1.1-libquadmath-devel.x86_64 
+       devtoolset-1.1-libstdc++-devel.x86_64
+       devtoolset-1.1-oprofile.x86_64
+       devtoolset-1.1-runtime.noarch
+       devtoolset-1.1-systemtap.x86_64 
+       devtoolset-1.1-systemtap-client.x86_64 
+       devtoolset-1.1-systemtap-devel.x86_64
+       devtoolset-1.1-systemtap-runtime.x86_64
+       devtoolset-1.1-valgrind.x86_64 
+       scl-utils.x86_64
 
 Downloads 
 ~~~~~~~~~~~~ 
@@ -39,6 +84,11 @@ Downloads
     wget http://www.erlang.org/download/otp_src_17.0.tar.gz
     wget http://www.process-one.net/downloads/downloads-action.php?file=/ejabberd/14.07/ejabberd-14.07.tgz
     wget -O ipop-14.07.0-x86_64_CentOS6.tar.gz http://goo.gl/3nHK7Z
+
+    wget http://erlang.org/download/otp_src_18.0.tar.gz
+
+    wget https://github.com/ipop-project/Downloads/releases/download/v16.08.0/ipop-v16.08.0_ubuntu.tar.gz  
+    wget https://github.com/ipop-project/Downloads/releases/download/v16.01.1/ipop-v16.01.1_centos7.tar.gz
 
 
 Building a roll 

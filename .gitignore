@@ -13,6 +13,7 @@ rocks-version.mk
 rocks-version-common.mk
 
 # ignore python files
+bootstrap.py
 *.pyc
 
 # ignore Rules* files
@@ -24,6 +25,11 @@ Rules-scripts.mk
 Rules.mk
 Rolls.mk
 
-
-
-
+# ignore  distro dirs
+src/chromium
+src/downoads
+src/libjingle
+src/libjingle-old
+src/libusbx
+src/turn
+src/webrtc
