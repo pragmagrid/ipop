@@ -8,68 +8,154 @@
  *
  * @package    rocks-ipop
  * @author     Shava Smallen <ssmallen@sdsc.edu>
+ * @author     Nadya Williams <nadya@sdsc.edu>
  */
 
-  $IPOP_CONFIG="@IPOPDIR@/etc/@IPOPCONFIG@";
-  $IPOP_IP_DB="db.json";
+/* read local ipop db  from a file, returns a value encoded json */
+function readDb ($ipopipdb) {
+    $fh = fopen($ipopipdb, 'r');
+    $ipop_db_txt = fread($fh, filesize($ipopipdb));
+    fclose($fh);
+    $ipop_db = json_decode($ipop_db_txt);
+    return $ipop_db;
+}
+
+/* read ipop config file, returns a value encoded json */
+function readIpopConfig ($IPOP_CONFIG) {
+    if ( ! file_exists($IPOP_CONFIG) ) {
+      die( "Error: no IPOP config file found" );
+    }
+
+    $fh = fopen($IPOP_CONFIG, 'r');
+    if ( filesize($IPOP_CONFIG) <= 0 ) {
+      die( "Error: no content found in IPOP config file" );
+    }
+    $ipop_config = fread($fh, filesize($IPOP_CONFIG));
+    fclose($fh);
+
+    $ipop_json = json_decode($ipop_config, true);
+    return $ipop_json;
+}
+
+/* read json object, return an array with IP4 values */
+function getIP4vals ($ipop_json) {
+    $ip4vals = array();
+    foreach ($ipop_json as $object) {
+        if (array_key_exists("ip4", $object)) {
+            $ip4vals["ip4"] = $object["ip4"];
+        }
+        if (array_key_exists("ip4_mask", $object)) {
+            $ip4vals["ip4_mask"] = $object["ip4_mask"];
+        }
+    }
+
+    foreach ( array("ip4", "ip4_mask") as $attr )  {
+      if ( ! isset($ip4vals[$attr]) ) {
+        die( "Error: missing " . $attr . " attribute in IPOP config file\n" );
+      }
+    }
+
+    return $ip4vals;
+}
+
+/* init local ipop db  from IP4 array, return ipop db array */
+function initDb ($ip4vals) {
+    $num_ips_left = pow(2, 32 - $ip4vals["ip4_mask"]) - 2;
+    $next_free_ip = long2ip(ip2long($ip4vals["ip4"]) - $num_ips_left + 1 );
+    $ipop_db = array( "next_free_ip" => $next_free_ip, "num_ips_left" => $num_ips_left  );
+    $ipop_db = json_decode(json_encode($ipop_db));
+
+    return $ipop_db;
+}
+
+/* update ipop db with allocated ip and its client, 
+  return updated ipop db object */
+function updateDb($ipop_db, &$current_ip) {
+  if ( $ipop_db->{"num_ips_left"} <= 0 ) {
+      die( "Error: no ips left" );
+  }
+
+  $client = $_SERVER["REMOTE_ADDR"];
+
+  /* find if client ip is already in json db */
+  $exists_ip = "";
+  foreach ($ipop_db as $key => $value) {
+      if (gettype($value) == "object") {
+          foreach ($value as $k => $v) {
+              if ($v == $client) {
+                  $exist_ip = $key;
+                  break 2;
+              }
+          }
+      }
+  }
+
+  if ($exist_ip) {
+      /* client had received an ip  in the past 
+         update the record but don't change free ip count */
+      $current_ip = $exist_ip;
+      $ipop_db->{$current_ip} = array( 
+        "request_time" => date(DATE_RFC2822,$_SERVER["REQUEST_TIME"]), 
+        "remote_addr" => $client
+      );
+  }
+  else {
+      /* new client, update all records */
+      $current_ip = $exist_ip;
+      $current_ip = $ipop_db->{"next_free_ip"};
+      $ipop_db->{"num_ips_left"} =  $ipop_db->{"num_ips_left"} - 1;
+      $ipop_db->{"next_free_ip"} = long2ip(ip2long($ipop_db->{"next_free_ip"}) + 1);
+      $ipop_db->{$current_ip} = array( 
+        "request_time" => date(DATE_RFC2822,$_SERVER["REQUEST_TIME"]), 
+        "remote_addr" => $client
+      );
+  }
+
+  return $ipop_db;
+}
+
+/* write ipop db object inot a file */
+function writeDb($ipop_db, $IPOP_IP_DB) {
+  $fh = fopen($IPOP_IP_DB, "w");
+  fwrite($fh, json_encode($ipop_db));
+  fclose($fh);
+  chmod($IPOP_IP_DB, 0600);
+}
+
+/* show client ip */
+function showClientIp($current_ip) {
+  print $current_ip; 
+}
+
+/*************** main flow ******************************/
+
+  /* set paths  to config and db files */ 
+  $IPOP_CONFIG="@IPOPDIR@/etc/@IPOPCONFIG@"; /* ipop config file */
+  $IPOP_IP_DB="db.json";                         /* json db file in /var/www/html/ipop */
 
   header("Content-Type: text/plain"); 
   date_default_timezone_set('UTC');
 
   /* Check that apache perms are set correctly */
-  if ( ! is_writeable(dirname($IPOP_IP_DB)) ||  
-       (file_exists($IPOP_IP_DB) && ! is_writeable($IPOP_IP_DB)) ) {
-    die( "Error, unable to create/write db" );
+  if (! is_writeable(dirname($IPOP_IP_DB)) ||  
+      (file_exists($IPOP_IP_DB) && ! is_writeable($IPOP_IP_DB))) {
+      die( "Error: unable to create/write db" );
   }
 
   /* Read local db or create if it doesn't exit */
   $ipop_db = "";
-  if ( file_exists($IPOP_IP_DB) ) {
-    $fh = fopen($IPOP_IP_DB, 'r');
-    $ipop_db_txt = fread($fh, filesize($IPOP_IP_DB));
-    fclose($fh);
-    $ipop_db = json_decode($ipop_db_txt);
-  } else {
-    /* Read IPOP config file and do some error checking */
-    if ( ! file_exists($IPOP_CONFIG) ) {
-      die( "Error, no IPOP config file found" );
-    }
-    $fh = fopen($IPOP_CONFIG, 'r');
-    if ( filesize($IPOP_CONFIG) <= 0 ) {
-      die( "Error, no content found in IPOP config file" );
-    }
-    $ipop_config = fread($fh, filesize($IPOP_CONFIG));
-    fclose($fh);
-    $ipop_json = json_decode($ipop_config);
-    foreach ( array("ip4", "ip4_mask") as $attr )  {
-      if ( ! isset($ipop_json->{$attr}) ) {
-        die( "Error, missing " . $attr . " attribute in IPOP config file" );
-      }
-    }
-    /* create a fresh db */
-    $num_ips_left = pow(2, 32 - $ipop_json->{"ip4_mask"}) - 2;
-    $last_ip = long2ip(ip2long($ipop_json->{"ip4"}) - $num_ips_left);
-    $ipop_db = array( "last_ip" => $last_ip, "num_ips_left" => $num_ips_left  );
-    $ipop_db = json_decode(json_encode($ipop_db));
+  if ( file_exists($IPOP_IP_DB) ) {            /* read local db file */
+      $ipop_db = readDb ($IPOP_IP_DB);
+  } else {                                     
+      $ipop_json = readIpopConfig($IPOP_CONFIG); /* read ipop config file */
+      $ip4vals = getIP4vals($ipop_json);       /* collect IP54 values in an array */
+      $ipop_db = initDb($ip4vals);             /* init local db */
   }
 
-  /* allocate a new ip address and update db */
-  if ( $ipop_db->{"num_ips_left"} <= 0 ) {
-    die( "Error, no ips left" );
-  }
-  $ipop_db->{"num_ips_left"} =  $ipop_db->{"num_ips_left"} - 1;
-  $next_ip = long2ip(ip2long($ipop_db->{"last_ip"}) + 1);
-  $ipop_db->{"last_ip"} = $next_ip;
-  $ipop_db->{$next_ip} = array( 
-    "request_time" => date(DATE_RFC2822,$_SERVER["REQUEST_TIME"]), 
-    "remote_addr" => $_SERVER["REMOTE_ADDR"] 
-  );
-  $fh = fopen($IPOP_IP_DB, "w");
-  fwrite($fh, json_encode($ipop_db));
-  fclose($fh);
-  chmod($IPOP_IP_DB, 0600);
+  $current_ip = "";
+  $ipop_db = updateDb($ipop_db, $current_ip);  /* allocate a new ip address and update db */
+  
+  writeDb ($ipop_db, $IPOP_IP_DB);             /* write local db in a file */
+  showClientIp($current_ip);                   /* return ip to a client */
 
-  /* return ip address to client */
-  print $next_ip;
 ?>
-
